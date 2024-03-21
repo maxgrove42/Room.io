@@ -24,6 +24,8 @@ register_page = '/register'
 register_auth_page = '/registerAuth'
 login_auth_page = '/loginAuth'
 home_page = '/home'
+logout_page = '/logout'
+search_units_page = '/search_units'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -32,6 +34,7 @@ html[start_page] = 'index.html'
 html[login_page] = 'login.html'
 html[register_page] = 'register.html'
 html[home_page] = 'home.html'
+html[search_units_page] = 'search_units.html'
 
 
 # Configure MySQL
@@ -80,6 +83,7 @@ def loginAuth():
         # creates a session for the user
         # session is a built in
         session['username'] = username
+        session['first_name'] = data['first_name'] #probably cleaner to deal with first name with a SQL select
         return redirect(home_page)
     else:
         # returns an error message to the html page
@@ -129,12 +133,24 @@ def registerAuth():
         conn.commit()
         cursor.close()
         session['username'] = username
+        session['first_name'] = first_name #probably cleaner to deal with first name with a SQL select
         return redirect(home_page)
 
 @app.route(home_page)
 def home():
-    return render_template(html[home_page])
+    name = session['first_name']
+    return render_template(html[home_page], first_name=name, posts="test template")
 
+
+@app.route(search_units_page)
+def search_units():
+    return render_template(html[search_units_page])
+
+@app.route(logout_page)
+def logout():
+    session.pop('username')
+    session.pop('first_name') #probably cleaner to deal with first name with a SQL select
+    return redirect(start_page)
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
