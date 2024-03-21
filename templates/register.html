@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <form action="/registerAuth" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Username" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Password" required><br>
+        
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required><br>
+        
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" placeholder="First Name" required><br>
+        
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" placeholder="Last Name" required><br>
+        
+        <label for="date_of_birth">Date of Birth:</label>
+        <input type="date" id="date_of_birth" name="date_of_birth" placeholder="DOB" min="1920-01-01" required><br>
+        
+        <select id="gender_identity" name="gender_identity" onchange="showCustomInput()" required>
+            <option value="">Please select a gender</option>
+            <option value="man">Man</option>
+            <option value="woman">Woman</option>
+            <option value="non-binary">Non-Binary</option>
+            <option value="undisclosed">Prefer not to say</option>
+            <option value="self-describe">Prefer to self-describe</option>
+        </select><br>
+        <input type="text" id="custom_gender" name="custom_gender" placeholder="Enter your gender identity" style="display:none;">
+        
+        <label for="phone">Phone Number:</label>
+        <input type="text" id="phone" name="phone" placeholder="123-555-1212"><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="email@website.com"><br>
+        
+        
+        <input type="submit" value="Register">
+        
+        {% if error %}
+            <p class="error"><strong>Error:</strong> {{error}}</p>
+        {% endif %}
+    </form>
+    
+    <a href="/">Go back</a>
+    
+    <script>
+        //add an action listener that only runs once everything is loaded.
+        document.addEventListener('DOMContentLoaded', function() {
+            let today = new Date();
+            //get today minus 18 years ago.
+            let minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+            //exclude the time portion of that date.
+            let minDateStr = minDate.toISOString().split('T')[0];
+            //set the max of date_of_birth to 18 years old.
+            document.getElementById('date_of_birth').setAttribute('max', minDateStr);
+        });
+
+        //only display the self-describe box if that is selected
+        function showCustomInput() {
+            var selectBox = document.getElementById('gender_identity');
+            var userInput = document.getElementById('custom_gender');
+            userInput.style.display = selectBox.value === 'self-describe' ? 'block' : 'none';
+            
+            if (selectBox.value !== 'self-describe') {
+                userInput.value = '';
+            }
+        }
+        
+        //ensure we change the gender value to self-describe value if that was selected
+        function handleFormSubmit(event) {
+            var selectBox = document.getElementById('genderIdentity');
+            var userInput = document.getElementById('customGender');
+            if (selectBox.value === 'self-describe' && userInput.value) {
+                selectBox.value = userInput.value;
+            }
+        }
+    </script>
+</body>
+</html>
