@@ -26,6 +26,7 @@ login_auth_page = '/loginAuth'
 home_page = '/home'
 logout_page = '/logout'
 search_units_page = '/search_units'
+unit_results_page = '/unit_results'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -35,6 +36,8 @@ html[login_page] = 'login.html'
 html[register_page] = 'register.html'
 html[home_page] = 'home.html'
 html[search_units_page] = 'search_units.html'
+html[unit_results_page] = 'unit_results.html'
+
 
 
 # Configure MySQL
@@ -124,6 +127,7 @@ def registerAuth():
     if (data):
         # If the previous query returns data, then user exists
         error = "This user already exists"
+        cursor.close()
         return render_template('register.html', error=error)
     else:
         # insert (username, firstname, lastname, dob, gender, email, phone, password)
@@ -145,6 +149,30 @@ def home():
 @app.route(search_units_page)
 def search_units():
     return render_template(html[search_units_page])
+
+
+@app.route(unit_results_page, methods=['GET', 'POST'])
+def show_results():
+    building = request.form['building']
+    company = request.form['company']
+
+    cursor = conn.cursor()
+    query = 'SELECT * FROM ApartmentUnit WHERE BuildingName LIKE %s AND CompanyName LIKE %s'
+    cursor.execute(query, ('%' + building + '%', '%' + company + '%'))
+    data = cursor.fetchall()
+
+    query = ('SELECT DISTINCT p.petType, p.petSize, p.petName, pp.isAllowed '
+             'FROM Pets p '
+             'JOIN petPolicy pp '
+             'WHERE p.username = %s '
+             'AND pp.BuildingName LIKE %s AND pp.CompanyName LIKE %s '
+             'AND pp.isAllowed = False')
+    cursor.execute(query, (session['username'], '%' + building + '%', '%' + company + '%'))
+    pets_not_allowed = cursor.fetchall()
+    cursor.close()
+
+    return render_template(html[unit_results_page], data=data, pets_not_allowed=pets_not_allowed)
+
 
 @app.route(logout_page)
 def logout():

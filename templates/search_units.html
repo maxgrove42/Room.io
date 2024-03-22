@@ -3,34 +3,22 @@
 </head>
 <body>
 
-<style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
-</style>
+<h1> Enter the building you want to look at: </h1>
+<form action="/unit_results" method="POST">
+    <label for="building">Building Name:</label> <!-- is there a way to select the distinct names and display? -->
+    <input type="text" id="building" name="building" placeholder="Building Name" required><br>
+    <label for="Company">Company Name:</label>
+    <input type="text" id="company" name="company" placeholder="Company Name" required><br>
+    <input type="submit" value="Search">
+    {% if error %}
+        <p class="error"><strong>Error:</strong> {{error}}</p>
+    {% endif %}
+</form>
 
-Here are posts by {{poster_name}}:
 
-<table>
-	<th>Time</th>
-	<th>Post</th>
 
-{% for line in posts %}
-	<tr>
-		<td>{{line.ts}}</td>
-		<td>{{line.blog_post}}</td>
-	</tr>
-{% endfor %}
-</table>
+<a href="/home">Home Screen</a><br>
 
-<br>
-<br>
-<a href="/select_blogger">Select another blogger</a>
-<br>
-<br>
-<a href="/home">Post a message</a>
-<br>
-<br>
 <a href="/logout">Logout</a>
 
 </body>

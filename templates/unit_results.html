@@ -1,0 +1,45 @@
+<html>
+<head>
+</head>
+<body>
+<h1> Search Results: </h1>
+<!-- display any pets that aren't allowed if there are any -->
+{% if pets_not_allowed|length == 0 %}
+    <p> All your pets are allowed in this building. </p>
+{% else %}
+    <p> Please note that these pets are not allowed in this building: </p>
+    {% for pets in pets_not_allowed %}
+        {{pet.petName}}, your {{pet.petSize}} {{pet.petType}}<br>
+    {% endfor %}
+{% endif %}
+
+{% if data|length > 0 %}
+    <table>
+        <th> Unit ID </th>
+        <th> Unit Number </th>
+        <th> Monthly Rent </th>
+        <th> Square Footage </th>
+        <th> Available Move-in Date </th>
+        {% for line in data %}
+            <tr>
+                <td>{{line.unitRentId}}</td>
+                <td>{{line.unitNumber}}</td>
+                <td>{{line.monthlyRent}}</td>
+                <td>{{line.squreFootage}}</td>
+                <td>{{line.AvailableDateForMoveIn}}</td>
+            </tr>
+        {% endfor %}<br>
+    </table>
+{% else %}
+    <p>No apartments available.</p>
+{% endif %}
+    
+<a href="/search_units">New Search</a><br>
+<a href="/home">Home Screen</a><br>
+
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>
