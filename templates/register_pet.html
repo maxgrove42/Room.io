@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a Pet</title>
+</head>
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+    }
+</style>
+<body>
+    <!-- to display added successfully if added successfully. -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+    <!-- display current pets of username -->
+    {% if pets|length == 0 %}
+        <p> You do not currently have any pets registered. </p>
+    {% else %}
+        These are the pets you currently have registered.
+        <table>
+                <th> Name </th>
+                <th> Type </th>
+                <th> Size </th>
+                {% for pet in pets %}
+                    <tr>
+                        <td>{{pet.petName}}</td>
+                        <td>{{pet.petType}}</td>
+                        <td>{{pet.petSize}}</td>
+                    </tr>
+                {% endfor %}
+            </table><br>
+    {% endif %}
+                    
+    <b>Add Pet:</b>
+    <form action="/add_pet" method="POST">
+        <label for="pet_name">Pet Name:</label>
+        <input type="text" id="pet_name" name="pet_name" placeholder="Name" required><br>
+
+        <select id="pet_size" name="pet_size" required>
+            <option value="">Please select a pet size</option>
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+        </select><br>
+        
+        <select id="pet_type" name="pet_type" onchange="showCustomInput()" required>
+            <option value="">Please select a pet type</option>
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="fish">Fish</option>
+            <option value="self-describe">Other</option>
+        </select><br>
+        <input type="text" id="custom_pet" name="custom_pet" placeholder="Enter your pet type" style="display:none;">
+            
+        <br><input type="submit" value="Add Pet">
+        
+        {% if error %}
+            <p class="error"><strong>Error:</strong> {{error}}</p>
+        {% endif %}
+    </form><br>
+    
+    <a href="/home">Home Screen</a><br>
+    <a href="/logout">Logout</a>
+    
+    <script>
+        //only display the self-describe box if that is selected
+        function showCustomInput() {
+            var selectBox = document.getElementById('pet_type');
+            var userInput = document.getElementById('custom_pet');
+            userInput.style.display = selectBox.value === 'self-describe' ? 'block' : 'none';
+            
+            if (selectBox.value !== 'self-describe') {
+                userInput.value = '';
+            }
+        }
+        
+        //ensure we change the gender value to self-describe value if that was selected
+        function handleFormSubmit(event) {
+            var selectBox = document.getElementById('pet_type');
+            var userInput = document.getElementById('custom_pet');
+            if (selectBox.value === 'self-describe' && userInput.value) {
+                selectBox.value = userInput.value;
+            }
+        }
+    </script>
+</body>
+</html>

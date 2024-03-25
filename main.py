@@ -27,6 +27,8 @@ home_page = '/home'
 logout_page = '/logout'
 search_units_page = '/search_units'
 unit_results_page = '/unit_results'
+register_pet_page = '/register_pet'
+add_pet_page = '/add_pet'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -37,6 +39,7 @@ html[register_page] = 'register.html'
 html[home_page] = 'home.html'
 html[search_units_page] = 'search_units.html'
 html[unit_results_page] = 'unit_results.html'
+html[register_pet_page] = 'register_pet.html'
 
 
 
@@ -179,6 +182,35 @@ def logout():
     session.pop('username')
     session.pop('first_name') #probably cleaner to deal with first name with a SQL select
     return redirect(start_page)
+
+@app.route(register_pet_page)
+def register_pet():
+    # get current pets for username
+    query = ('SELECT petName, petType, petSize '
+             'FROM Pets '
+             'WHERE username = %s ')
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchall()
+    return render_template(html[register_pet_page], pets=data)
+
+@app.route(add_pet_page,methods = ['GET', 'POST'])
+def add_pet():
+    try:
+        pet_name = request.form['pet_name']
+        pet_type = request.form['pet_type']
+        pet_size = request.form['pet_size']
+        ins = 'INSERT INTO pets VALUES (%s, %s, %s, %s)'
+        cursor = conn.cursor()
+        cursor.execute(ins, (pet_name, pet_type, pet_size, session['username']))
+        conn.commit()
+        cursor.close()
+        flash('Pet added successfully', 'success')  # Flash the success message
+    except:
+        flash('Unable to add pet. Please try again.' 'warning')
+    finally:
+        return redirect(register_pet_page)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
