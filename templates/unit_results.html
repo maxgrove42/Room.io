@@ -23,20 +23,24 @@
 
 {% if data|length > 0 %}
     <table>
+        <th> Unit ID </th>
         <th> Company </th>
         <th> Building </th>
         <th> Unit Number </th>
         <th> Monthly Rent </th>
         <th> Square Footage </th>
         <th> Available Move-in Date </th>
+        <th> More Details </th>
         {% for line in data %}
             <tr>
+                <td> {{line.UnitRentID}}</td>
                 <td>{{line.CompanyName}}</td>
                 <td>{{line.BuildingName}}</td>
                 <td>{{line.unitNumber}}</td>
                 <td>{{line.MonthlyRent}}</td>
                 <td>{{line.squareFootage}}</td>
                 <td>{{line.AvailableDateForMoveIn}}</td>
+                <td> <a href="/show_details?unitRentId={{ line.UnitRentID }}"> More Details </a></td>
             </tr>
         {% endfor %}<br>
     </table>

@@ -15,7 +15,7 @@ sql_port = 3306
 sql_user = 'root'
 sql_password = 'sql-pwd'
 sql_db = 'ROOMIO'
-sql_charset='utf8mb4'
+sql_charset = 'utf8mb4'
 
 # app routing names and HTML page names in the dictionary
 start_page = '/'
@@ -29,6 +29,7 @@ search_units_page = '/search_units'
 unit_results_page = '/unit_results'
 register_pet_page = '/register_pet'
 add_pet_page = '/add_pet'
+show_details = '/show_details'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -40,8 +41,7 @@ html[home_page] = 'home.html'
 html[search_units_page] = 'search_units.html'
 html[unit_results_page] = 'unit_results.html'
 html[register_pet_page] = 'register_pet.html'
-
-
+html[show_details] = 'show_details.html'
 
 # Configure MySQL
 conn = pymysql.connect(host=sql_host,
@@ -51,6 +51,7 @@ conn = pymysql.connect(host=sql_host,
                        db=sql_db,
                        charset=sql_charset,
                        cursorclass=pymysql.cursors.DictCursor)
+
 
 # BEGIN FLASK ROUTING
 @app.route(start_page)
@@ -89,7 +90,7 @@ def loginAuth():
         # creates a session for the user
         # session is a built in
         session['username'] = username
-        session['first_name'] = data['first_name'] #probably cleaner to deal with first name with a SQL select
+        session['first_name'] = data['first_name']  # probably cleaner to deal with first name with a SQL select
         return redirect(home_page)
     else:
         # returns an error message to the html page
@@ -127,7 +128,7 @@ def registerAuth():
     data = cursor.fetchone()
     # use fetchall() if you are expecting more than 1 data row
     error = None
-    if (data):
+    if data:
         # If the previous query returns data, then user exists
         error = "This user already exists"
         cursor.close()
@@ -140,8 +141,9 @@ def registerAuth():
         conn.commit()
         cursor.close()
         session['username'] = username
-        session['first_name'] = first_name #probably cleaner to deal with first name with a SQL select
+        session['first_name'] = first_name  # probably cleaner to deal with first name with a SQL select
         return redirect(home_page)
+
 
 @app.route(home_page)
 def home():
@@ -177,11 +179,84 @@ def show_results():
     return render_template(html[unit_results_page], data=data, pets_not_allowed=pets_not_allowed)
 
 
+@app.route(show_details)
+def show_details():
+    unit_rent_id = int(request.args.get('unitRentId'))
+    cursor = conn.cursor()
+
+    building_query = ("SELECT ab.CompanyName, ab.BuildingName, ab.AddrNum, ab.AddrStreet,"
+                      " ab.AddrCity, ab.AddrState, ab.AddrZipCode, ab.YearBuilt "
+                      "FROM ApartmentBuilding ab "
+                      "LEFT JOIN ApartmentUnit au "
+                      "   ON au.CompanyName = ab.CompanyName "
+                      "   AND au.BuildingName = ab.BuildingName "
+                      "WHERE au.unitRentId = %s")
+    cursor.execute(building_query, (unit_rent_id,))
+    building_data = cursor.fetchone()
+
+    unit_details_query = ("SELECT * FROM ApartmentUnit "
+                          "WHERE UnitRentId = %s")
+    cursor.execute(unit_details_query, (unit_rent_id,))
+    unit_data = cursor.fetchone()
+
+    rooms_query = ("SELECT * FROM Rooms "
+                   "WHERE UnitRentId = %s")
+    cursor.execute(rooms_query, (unit_rent_id,))
+    rooms_data = cursor.fetchall()
+
+    pet_policy_query = ("SELECT pp.PetType, pp.PetSize, pp.isAllowed, pp.RegistrationFee, pp.MonthlyFee "
+                        "FROM PetPolicy pp "
+                        "LEFT JOIN ApartmentUnit au "
+                        "   ON au.CompanyName = pp.CompanyName "
+                        "   AND au.BuildingName = pp.BuildingName "
+                        "WHERE au.UnitRentID = %s")
+    cursor.execute(pet_policy_query, (unit_rent_id,))
+    pet_data = cursor.fetchall()
+
+    unit_amenities_query = ("SELECT ai.aType, a.Description "
+                            "FROM AmenitiesIn ai "
+                            "LEFT JOIN Amenities a "
+                            "    ON a.aType = ai.aType "
+                            "WHERE ai.UnitRentID = %s ")
+    cursor.execute(unit_amenities_query, (unit_rent_id,))
+    unit_amenities_data = cursor.fetchall()
+
+    building_amenities_query = ("SELECT p.aType, a.Description, p.fee "
+                                "FROM Provides p "
+                                "LEFT JOIN Amenities a "
+                                "   ON p.aType = a.aType "
+                                "LEFT JOIN ApartmentUnit au "
+                                "   ON au.CompanyName = p.CompanyName "
+                                "   AND au.BuildingName = p.BuildingName "
+                                "WHERE au.UnitRentId = %s")
+    cursor.execute(building_amenities_query, (unit_rent_id,))
+    building_amenities_data = cursor.fetchall()
+
+    interests_query = ("SELECT u.first_name, u.gender, i.RoommateCnt, i.MoveInDate "
+                       "FROM Interests i "
+                       "LEFT JOIN Users u "
+                       "    ON i.username = u.username "
+                       "WHERE i.UnitRentID = %s")
+    cursor.execute(interests_query, (unit_rent_id,))
+    interests_data = cursor.fetchall()
+
+    cursor.close()
+    return render_template(html[show_details],
+                           unit_data=unit_data,
+                           building_data=building_data,
+                           rooms_data=rooms_data,
+                           pet_data=pet_data,
+                           unit_amenities_data=unit_amenities_data,
+                           building_amenities_data=building_amenities_data,
+                           interests_data=interests_data)
+
+
 @app.route(logout_page)
 def logout():
     session.pop('username')
-    session.pop('first_name') #probably cleaner to deal with first name with a SQL select
+    session.pop('first_name')  # probably cleaner to deal with first name with a SQL select
     return redirect(start_page)
+
 
 @app.route(register_pet_page)
 def register_pet():
@@ -194,7 +269,8 @@ def register_pet():
     data = cursor.fetchall()
     return render_template(html[register_pet_page], pets=data)
 
-@app.route(add_pet_page,methods = ['GET', 'POST'])
+
+@app.route(add_pet_page, methods=['GET', 'POST'])
 def add_pet():
     try:
         pet_name = request.form['pet_name']
