@@ -1,31 +1,41 @@
 <html>
 <head>
 </head>
+<style type="text/css">
+    table, th, td{
+        border: 1px solid black;
+        text-align: center;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+</style>
 <body>
 <h1> Search Results: </h1>
 <!-- display any pets that aren't allowed if there are any -->
 {% if pets_not_allowed|length == 0 %}
     <p> All your pets are allowed in this building. </p>
 {% else %}
-    <p> Please note that these pets are not allowed in this building: </p>
+    <p> Please note that these pets may not be allowed: </p>
     {% for pets in pets_not_allowed %}
-        {{pet.petName}}, your {{pet.petSize}} {{pet.petType}}<br>
+        {{pet.PetName}}, your {{pet.PetSize}} {{pet.PetType}}<br>
     {% endfor %}
 {% endif %}
 
 {% if data|length > 0 %}
     <table>
-        <th> Unit ID </th>
+        <th> Company </th>
+        <th> Building </th>
         <th> Unit Number </th>
         <th> Monthly Rent </th>
         <th> Square Footage </th>
         <th> Available Move-in Date </th>
         {% for line in data %}
             <tr>
-                <td>{{line.unitRentId}}</td>
+                <td>{{line.CompanyName}}</td>
+                <td>{{line.BuildingName}}</td>
                 <td>{{line.unitNumber}}</td>
-                <td>{{line.monthlyRent}}</td>
-                <td>{{line.squreFootage}}</td>
+                <td>{{line.MonthlyRent}}</td>
+                <td>{{line.squareFootage}}</td>
                 <td>{{line.AvailableDateForMoveIn}}</td>
             </tr>
         {% endfor %}<br>
