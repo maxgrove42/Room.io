@@ -9,6 +9,12 @@ ROOM.IO is a Flask-based web application designed to simplify the search for apa
 - Pet Registration: Register pets and automatically check against apartment pet policies.
 - User and Pet Management: Update user profiles and pet information seamlessly.
 
+## Upcoming Features
+
+- Mark interest: View who is interested in an apartment and mark your own interest.
+- Display more detailed building and apartment information
+- Ensure security from SQL Injections and XSS attacks
+
 ## Setup and Installation
 
 ### Prerequisites
