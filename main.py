@@ -4,7 +4,7 @@ import bcrypt  # for hashing and salting password.
 
 # Flask Parameters
 app = Flask(__name__)
-secret_key = 'coffee-lock-98@3302'
+secret_key = 'xxxxxx'
 host = '127.0.0.1'
 flask_port = 5000
 debug = True
@@ -13,7 +13,7 @@ debug = True
 sql_host = 'localhost'
 sql_port = 3306
 sql_user = 'root'
-sql_password = 'sql-pwd'
+sql_password = 'XXXXXXX'
 sql_db = 'ROOMIO'
 sql_charset = 'utf8mb4'
 
