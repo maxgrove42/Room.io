@@ -69,6 +69,7 @@ This application uses bcrypt for hashing and salting passwords, providing a laye
 
 For further customization and development, I will consider adding more features such as:
 
+- SQL queries stored in a static sql file to access, rather than directly in the Python code
 - Email verification for new users.
 - Advanced search filters for apartment units.
 - User profile and pet detail pages.
