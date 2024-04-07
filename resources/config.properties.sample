@@ -1,13 +1,19 @@
-# Configuration properties for mta-delays project
+# Configuration SAMPLE properties for ROOMIO project
+# Ensure you update these to your machine
 
-# API Key for accessing the GTFS Realtime Feed
-gtfs.api.key=YOUR_API_KEY_HERE
+# Flask parameters
+[Flask]
+flask_secret_key = secret_key
+flask_host = 127.0.0.1
+flask_port = 0000
 
-# Database configuration
-database.url=jdbc:mysql://localhost:3306/mydatabase
-database.user=dbusername
-database.password=dbpwd
+# database parameters
+[Database]
+db_host = localhost
+db_port = 0000
+db_username = root
+db_name=ROOMIO
+db_password= password
 
-# Server specifications
-server.socket.port = 8000
-server.address = localhost
+
+# additional settings you may want to include

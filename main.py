@@ -1,24 +1,24 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
 import bcrypt  # for hashing and salting password.
-import configparser # for reading in config.properties
+import configparser  # for reading in config.properties
 
 config = configparser.ConfigParser()
-config.read('/resources/config.properties')
+config.read('resources/config.properties')
 
 # Flask Parameters
 app = Flask(__name__)
-secret_key = config['flask.secret.key']
-host = config['flask.host']
-flask_port = config['flask.port']
+secret_key = config['Flask']['flask_secret_key']
+host = config['Flask']['flask_host']
+flask_port = int(config['Flask']['flask_port'])
 debug = False
 
 # MYSQL connection parameters
-sql_host = config['database.host']
-sql_port = config['database.port']
-sql_user = config['database.username']
-sql_password = config['database.password']
-sql_db = config['database.name']
+sql_host = config['Database']['db_host']
+sql_port = int(config['Database']['db_port'])
+sql_user = config['Database']['db_username']
+sql_password = config['Database']['db_password']
+sql_db = config['Database']['db_name']
 sql_charset = 'utf8mb4'
 
 # app routing names and HTML page names in the dictionary
