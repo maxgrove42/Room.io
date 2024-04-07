@@ -1,14 +1,15 @@
 <html>
 <head>
+    <style type="text/css">
+        table, th, td{
+            border: 1px solid black;
+            text-align: center;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+    </style>
 </head>
-<style type="text/css">
-    table, th, td{
-        border: 1px solid black;
-        text-align: center;
-        padding-left: 2px;
-        padding-right: 2px;
-    }
-</style>
+
 <body>
 <h1> Unit Details for {{building_data.AddrNum}} {{building_data.AddrStreet}}, Unit {{unit_data.unitNumber}}, {{building_data.AddrCity}} {{building_data.AddrState}}, {{building_data.AddrZipCode}}:
     </h1>
@@ -19,6 +20,7 @@ Monthly Rent: {{unit_data.MonthlyRent}}<br>
 Square Feet: {{unit_data.squareFootage}}<br>
 Available on: {{unit_data.AvailableDateForMoveIn}}<br>
 
+{% if rooms_data|length >= 1 %}
 <h2>Rooms:</h2>
     <table>
         <th>Room Name</th>
@@ -32,7 +34,9 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         </tr>
         {% endfor %}<br>
     </table>
+{% endif %}
     
+{% if pet_data|length >= 1 %}
 <h2>Pet Policy:</h2>
     <table>
         <th>Pet Type</th>
@@ -50,7 +54,9 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         </tr>
         {% endfor %}
     </table><br>
+{% endif %}
 
+{% if unit_amenities_data|length >= 1 %}
 <h2>Unit Amenities:</h2>
     <table>
         <th>Type</th>
@@ -62,7 +68,9 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         </tr>
         {% endfor %}
     </table><br>
+{% endif %}
 
+{% if building_amenities_data|length >= 1 %}
 <h2>Building Amenities:</h2>
     <table>
         <th>Type</th>
@@ -76,7 +84,9 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         </tr>
         {% endfor %}
     </table><br>
+{% endif %}
 
+{% if interests_data|length >= 1 %}
 <h2>Who's interested:</h2>
     <table>
         <th>First Name</th>
@@ -92,7 +102,9 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         </tr>
         {% endfor %}
     </table><br>
+{% endif %}
     
+
 <a href="/search_units">New Search</a><br>
 <a href="/home">Home Screen</a><br>
 
