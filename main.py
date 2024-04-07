@@ -1,20 +1,24 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
 import bcrypt  # for hashing and salting password.
+import configparser # for reading in config.properties
+
+config = configparser.ConfigParser()
+config.read('/resources/config.properties')
 
 # Flask Parameters
 app = Flask(__name__)
-secret_key = 'xxxxxx'
-host = '127.0.0.1'
-flask_port = 5000
-debug = True
+secret_key = config['flask.secret.key']
+host = config['flask.host']
+flask_port = config['flask.port']
+debug = False
 
 # MYSQL connection parameters
-sql_host = 'localhost'
-sql_port = 3306
-sql_user = 'root'
-sql_password = 'XXXXXXX'
-sql_db = 'ROOMIO'
+sql_host = config['database.host']
+sql_port = config['database.port']
+sql_user = config['database.username']
+sql_password = config['database.password']
+sql_db = config['database.name']
 sql_charset = 'utf8mb4'
 
 # app routing names and HTML page names in the dictionary
@@ -29,7 +33,7 @@ search_units_page = '/search_units'
 unit_results_page = '/unit_results'
 register_pet_page = '/register_pet'
 add_pet_page = '/add_pet'
-show_details = '/show_details'
+show_details_page = '/show_details'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -41,7 +45,7 @@ html[home_page] = 'home.html'
 html[search_units_page] = 'search_units.html'
 html[unit_results_page] = 'unit_results.html'
 html[register_pet_page] = 'register_pet.html'
-html[show_details] = 'show_details.html'
+html[show_details_page] = 'show_details.html'
 
 # Configure MySQL
 conn = pymysql.connect(host=sql_host,
@@ -179,7 +183,7 @@ def show_results():
     return render_template(html[unit_results_page], data=data, pets_not_allowed=pets_not_allowed)
 
 
-@app.route(show_details)
+@app.route(show_details_page)
 def show_details():
     unit_rent_id = int(request.args.get('unitRentId'))
     cursor = conn.cursor()
@@ -201,7 +205,7 @@ def show_details():
 
     rooms_query = ("SELECT * FROM Rooms "
                    "WHERE UnitRentId = %s")
-    cursor.execute(rooms_query, (unit_rent_id,))
+    cursor.execute(rooms_query, unit_rent_id)
     rooms_data = cursor.fetchall()
 
     pet_policy_query = ("SELECT pp.PetType, pp.PetSize, pp.isAllowed, pp.RegistrationFee, pp.MonthlyFee "
@@ -210,7 +214,7 @@ def show_details():
                         "   ON au.CompanyName = pp.CompanyName "
                         "   AND au.BuildingName = pp.BuildingName "
                         "WHERE au.UnitRentID = %s")
-    cursor.execute(pet_policy_query, (unit_rent_id,))
+    cursor.execute(pet_policy_query, (unit_rent_id))
     pet_data = cursor.fetchall()
 
     unit_amenities_query = ("SELECT ai.aType, a.Description "
@@ -218,7 +222,7 @@ def show_details():
                             "LEFT JOIN Amenities a "
                             "    ON a.aType = ai.aType "
                             "WHERE ai.UnitRentID = %s ")
-    cursor.execute(unit_amenities_query, (unit_rent_id,))
+    cursor.execute(unit_amenities_query, (unit_rent_id))
     unit_amenities_data = cursor.fetchall()
 
     building_amenities_query = ("SELECT p.aType, a.Description, p.fee "
@@ -237,11 +241,11 @@ def show_details():
                        "LEFT JOIN Users u "
                        "    ON i.username = u.username "
                        "WHERE i.UnitRentID = %s")
-    cursor.execute(interests_query, (unit_rent_id,))
+    cursor.execute(interests_query, (unit_rent_id))
     interests_data = cursor.fetchall()
 
     cursor.close()
-    return render_template(html[show_details],
+    return render_template(html[show_details_page],
                            unit_data=unit_data,
                            building_data=building_data,
                            rooms_data=rooms_data,

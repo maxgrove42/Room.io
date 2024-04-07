@@ -1,0 +1,13 @@
+# Configuration properties for mta-delays project
+
+# API Key for accessing the GTFS Realtime Feed
+gtfs.api.key=YOUR_API_KEY_HERE
+
+# Database configuration
+database.url=jdbc:mysql://localhost:3306/mydatabase
+database.user=dbusername
+database.password=dbpwd
+
+# Server specifications
+server.socket.port = 8000
+server.address = localhost
