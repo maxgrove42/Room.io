@@ -73,4 +73,4 @@ For further customization and development, I will consider adding more features 
 - Email verification for new users.
 - Advanced search filters for apartment units.
 - User profile and pet detail pages.
-- Integration with external APIs for additional apartment data.
+- Integration with external APIs for additional apartment data (Perhaps Streeteasy?)
