@@ -35,7 +35,7 @@ Update the `MYSQL connection parameters` in the `/resources/config.properties` f
 
 ### Installing Dependencies
 
-Install the required Python packages (as described in requirements.txt) by running:
+Install the required Python packages (as described in `requirements.txt`) by running:
 
 ```
 pip install Flask pymysql bcrypt
