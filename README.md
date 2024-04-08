@@ -19,10 +19,13 @@ ROOM.IO is a Flask-based web application designed to simplify the search for apa
 
 ### Prerequisites
 
+Prerequisite packages listed in `requirements.txt`
+
 - Python 3.6+
 - Flask
 - pymysql
 - bcrypt
+- configparser
 
 ### Configuration
 
