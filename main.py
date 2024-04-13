@@ -43,6 +43,8 @@ add_pet_page = '/add_pet'
 show_details_page = '/show_details'
 new_interest_page = '/new_interest'
 add_interest_page = '/addInterest'
+edit_interests = '/edit_interests'
+delete_interest = '/deleteInterest'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -56,6 +58,7 @@ html[unit_results_page] = 'unit_results.html'
 html[register_pet_page] = 'register_pet.html'
 html[show_details_page] = 'show_details.html'
 html[new_interest_page] = 'new_interest.html'
+html[edit_interests] = 'edit_interests.html'
 
 # Configure MySQL
 conn = pymysql.connect(host=sql_host,
@@ -356,6 +359,49 @@ def addInterest():
     cursor.close()
     return redirect(show_details_page + '?unitRentId=' + str(unit_rent_id))
 
+@app.route(edit_interests)
+def editInterests():
+    username = session['username']
+    cursor = conn.cursor()
+    interests_query = ("SELECT ab.AddrNum, ab.AddrStreet, ab.AddrCity, ab.AddrState, ab.AddrZipCode, "
+                       "    au.unitNumber, au.MonthlyRent, au.squareFootage, "
+                       "    i.RoommateCnt, i.MoveInDate, i.unitRentId "
+                       "FROM Interests i "
+                       "JOIN ApartmentUnit au "
+                       "    ON i.UnitRentId = au.UnitRentId "
+                       "JOIN ApartmentBuilding ab "
+                       "    ON ab.CompanyName = au.CompanyName "
+                       "    AND ab.BuildingName = au.BuildingName "
+                       "WHERE i.username = %s")
+    cursor.execute(interests_query, (username,))
+    interests_data = cursor.fetchall()
+    cursor.close()
+    return render_template(html[edit_interests],
+                           interests_data=interests_data)
+
+@app.route(delete_interest, methods=['GET'])
+def deleteInterest():
+    username = session['username']
+    unit_rent_id = int(request.args.get('unitRentId'))
+    cursor = conn.cursor()
+    # safety check to ensure this user has an interest in the unit
+    possible_rent_ids_query = ("SELECT distinct unitRentId "
+                               "FROM interests "
+                               "WHERE username = %s")
+    cursor.execute(possible_rent_ids_query, (username,))
+    possible_rent_ids = cursor.fetchall()
+    valid_rent_ids = [row['unitRentId'] for row in possible_rent_ids]
+    if unit_rent_id not in valid_rent_ids:
+        return redirect(edit_interests)
+
+    # now actually do the delete.
+    delete_query = ("DELETE FROM Interests WHERE username = %s AND unitRentId = %s "
+                    "LIMIT 1")  # limit included as a safety. only allow for one row delete.
+    cursor.execute(delete_query, (username, unit_rent_id))
+    conn.commit()
+    cursor.close()
+
+    return redirect(edit_interests)
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":

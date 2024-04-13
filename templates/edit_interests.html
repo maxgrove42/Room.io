@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Interests</title>
+        <style type="text/css">
+        table, th, td{
+            border: 1px solid black;
+            text-align: center;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+    </style>
+</head>
+<body>
+
+
+{% if interests_data|length >= 1 %}
+<h2>Interests:</h2>
+    <table>
+        <th>Address</th>
+        <th>Unit No.</th>
+        <th>Monthly Rent</th>
+        <th>Square Footage</th>
+        <th>Roommates (Including yourself)</th>
+        <th>Expected Move In Date</th>
+        <th>Delete Interest</th>
+        {% for interest in interests_data %}
+        <tr>
+           <td>{{interest.AddrNum}} {{interest.AddrStreet}},
+               {{interest.AddrCity}} {{interest.AddrState}}, {{interest.AddrZipCode}}</td>
+            <td>{{interest.unitNumber}}</td>
+            <td>{{interest.MonthlyRent}}</td>
+            <td>{{interest.squareFootage}}</td>
+            <td>{{interest.RoommateCnt}}</td>
+            <td>{{interest.MoveInDate}}</td>
+            <td><a href="/deleteInterest?unitRentId={{interest.unitRentId}}">Delete Interest</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>You don't have any apartments marked as interested! Go find some!</p>
+{% endif %}
+
+<a href="/search_units">New Search</a><br>
+<a href="/home">Home Screen</a><br>
+<a href="/logout">Logout</a>
+</body>
+</html>
