@@ -5,13 +5,17 @@ import configparser  # for reading in config.properties
 
 config = configparser.ConfigParser()
 config.read('resources/config.properties')
+# TODO ################################################
+# deal with session['first name'] in sql rather than
+#   in session
+# TODO ################################################
 
 # Flask Parameters
 app = Flask(__name__)
 secret_key = config['Flask']['flask_secret_key']
 host = config['Flask']['flask_host']
 flask_port = int(config['Flask']['flask_port'])
-debug = False
+debug = True
 
 # MYSQL connection parameters
 sql_host = config['Database']['db_host']
@@ -34,6 +38,8 @@ unit_results_page = '/unit_results'
 register_pet_page = '/register_pet'
 add_pet_page = '/add_pet'
 show_details_page = '/show_details'
+new_interest_page = '/new_interest'
+add_interest_page = '/addInterest'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -46,6 +52,7 @@ html[search_units_page] = 'search_units.html'
 html[unit_results_page] = 'unit_results.html'
 html[register_pet_page] = 'register_pet.html'
 html[show_details_page] = 'show_details.html'
+html[new_interest_page] = 'new_interest.html'
 
 # Configure MySQL
 conn = pymysql.connect(host=sql_host,
@@ -246,6 +253,7 @@ def show_details():
 
     cursor.close()
     return render_template(html[show_details_page],
+                           unit_rent_id=unit_rent_id,
                            unit_data=unit_data,
                            building_data=building_data,
                            rooms_data=rooms_data,
@@ -290,6 +298,48 @@ def add_pet():
         flash('Unable to add pet. Please try again.' 'warning')
     finally:
         return redirect(register_pet_page)
+
+
+@app.route(new_interest_page, methods=['GET', 'POST'])
+def new_interest():
+    unit_rent_id = int(request.args.get('unitRentId'))
+    cursor = conn.cursor()
+
+    building_query = ("SELECT ab.CompanyName, ab.BuildingName, ab.AddrNum, ab.AddrStreet, "
+                      " ab.AddrCity, ab.AddrState, ab.AddrZipCode "
+                      "FROM ApartmentBuilding ab "
+                      "LEFT JOIN ApartmentUnit au "
+                      "   ON au.CompanyName = ab.CompanyName "
+                      "   AND au.BuildingName = ab.BuildingName "
+                      "WHERE au.unitRentId = %s")
+    cursor.execute(building_query, (unit_rent_id,))
+
+    building_data = cursor.fetchone()
+
+    unit_details_query = ("SELECT * FROM ApartmentUnit "
+                          "WHERE UnitRentId = %s")
+    cursor.execute(unit_details_query, (unit_rent_id,))
+    unit_data = cursor.fetchone()
+
+    cursor.close()
+    return render_template(html[new_interest_page],
+                           building_data=building_data,
+                           unit_data=unit_data,
+                           unit_rent_id=unit_rent_id)
+
+
+@app.route(add_interest_page, methods=['GET', 'POST'])
+def addInterest():
+    username = session['username']
+    unit_rent_id = int(request.args.get('unitRentId'))
+    roommate_count = request.form['roommate_count']
+    move_in_date = request.form['move_in_date']
+    cursor = conn.cursor()
+    insert_query = "INSERT INTO Interests values(%s, %s, %s, %s)"
+    cursor.execute(insert_query, (username, unit_rent_id, roommate_count, move_in_date))
+    conn.commit()
+    cursor.close()
+    return redirect(show_details_page + '?unitRentId=' + str(unit_rent_id))
 
 
 # Press the green button in the gutter to run the script.

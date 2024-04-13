@@ -14,11 +14,13 @@
 <h1> Unit Details for {{building_data.AddrNum}} {{building_data.AddrStreet}}, Unit {{unit_data.unitNumber}}, {{building_data.AddrCity}} {{building_data.AddrState}}, {{building_data.AddrZipCode}}:
     </h1>
 
-<h3>Unit Details:</h3>
+<h2>Unit Details:</h2>
 Building built in: {{building_data.YearBuilt}}<br>
 Monthly Rent: {{unit_data.MonthlyRent}}<br>
 Square Feet: {{unit_data.squareFootage}}<br>
 Available on: {{unit_data.AvailableDateForMoveIn}}<br>
+
+<h3><a href = "/new_interest?unitRentId={{unit_rent_id}}" > I'm interested!</a><br></h3>
 
 {% if rooms_data|length >= 1 %}
 <h2>Rooms:</h2>
@@ -93,17 +95,20 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         <th>Gender</th>
         <th>Roommate Count</th>
         <th>Move-In Date</th>
+        <th>Join Interest</th>
         {% for interest in interests_data %}
         <tr>
             <td>{{ interest.first_name }}</td>
             <td>{{ interest.gender }}</td>
             <td>{{ interest.RoommateCnt }}</td>
             <td>{{ interest.MoveInDate }}</td>
+            <td><a href = "/join_interest?unit_rent_id={{ unit_rent_id }}"> Join Interest</a></td>
         </tr>
         {% endfor %}
     </table><br>
 {% endif %}
-    
+
+<h3><a href = "/new_interest?unit_rent_id={{ unit_rent_id }}"> I'm interested!</a><br></h3>
 
 <a href="/search_units">New Search</a><br>
 <a href="/home">Home Screen</a><br>

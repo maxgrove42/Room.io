@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I'm interested!</title>
+    <style type="text/css">
+        table, th, td{
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+        
+   <h2>I'm interested in: </h2>
+   <h3>{{building_data.AddrNum}} {{building_data.AddrStreet}}, Unit {{unit_data.unitNumber}}, {{building_data.AddrCity}} {{building_data.AddrState}}, {{building_data.AddrZipCode}}</h3>
+                    
+    <b>Add Interest:</b>
+    <form action="/addInterest?unitRentId={{unit_rent_id}}" method="POST">
+        <label for="roommate_count">Total number of roommates including yourself: </label>
+        <input type="number" id="roommate_count" name="roommate_count" placeholder=1 min = 1 required><br>
+
+        <label for="move_in_date">Desired Move In Date:</label>
+        <input type="date" id="move_in_date" name="move_in_date" required><br>
+
+        <input type="submit" value="Record Interest">
+        
+        {% if error %}
+            <p class="error"><strong>Error:</strong> {{error}}</p>
+        {% endif %}
+    </form><br>
+
+   <a href="/show_details?unitRentId={{unit_rent_id}}">Back to unit details</a><br>
+    <a href="/home">Home Screen</a><br>
+    <a href="/logout">Logout</a>
+    
+    <script>
+        //add an action listener that only runs once everything is loaded.
+        //  this sets the minimum move in date to today and
+        //  maximum move in date to today + 2 years
+        document.addEventListener('DOMContentLoaded', function() {
+            let today = new Date();
+            let maxDate = new Date(today.getFullYear() + 2, today.getMonth(), today.getDate());
+            //exclude the time portion of that date.
+            let todayDateStr = today.toISOString().split('T')[0];
+            let maxDateStr = maxDate.toISOString().split('T')[0];
+            //set the max of date_of_birth to 18 years old.
+            document.getElementById('move_in_date').setAttribute('min', todayDateStr);
+            document.getElementById('move_in_date').setAttribute('max', maxDateStr);
+        });
+    </script>
+</body>
+</html>
