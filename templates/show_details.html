@@ -20,7 +20,12 @@ Monthly Rent: {{unit_data.MonthlyRent}}<br>
 Square Feet: {{unit_data.squareFootage}}<br>
 Available on: {{unit_data.AvailableDateForMoveIn}}<br>
 
-<h3><a href = "/new_interest?unitRentId={{unit_rent_id}}" > I'm interested!</a><br></h3>
+{% if already_interested %}
+    <h3>You have marked your interest in this unit!</h3>
+    <p>You can edit your interests <a href = "/edit_interests">here</a>.</p>
+{% else %}
+    <h3><a href = "/new_interest?unitRentId={{unit_rent_id}}" > I'm interested!</a></h3>
+{% endif %}
 
 {% if rooms_data|length >= 1 %}
 <h2>Rooms:</h2>
@@ -34,7 +39,7 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
             <td>{{room.squareFootage}}</td>
             <td>{{room.description}}</td>
         </tr>
-        {% endfor %}<br>
+        {% endfor %}
     </table>
 {% endif %}
     
@@ -50,12 +55,16 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
         <tr>
             <td>{{ pet.PetType }}</td>
             <td>{{ pet.PetSize }}</td>
-            <td>{{ pet.isAllowed }}</td>
+            <td>{% if pet.isAllowed == 1 %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}</td>
             <td>{{ pet.RegistrationFee }}</td>
             <td>{{ pet.MonthlyFee }}</td>
         </tr>
         {% endfor %}
-    </table><br>
+    </table>
 {% endif %}
 
 {% if unit_amenities_data|length >= 1 %}
@@ -69,7 +78,7 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
             <td>{{ amenity.Description }}</td>
         </tr>
         {% endfor %}
-    </table><br>
+    </table>
 {% endif %}
 
 {% if building_amenities_data|length >= 1 %}
@@ -85,7 +94,7 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
             <td>{{ amenity.fee }}</td>
         </tr>
         {% endfor %}
-    </table><br>
+    </table>
 {% endif %}
 
 {% if interests_data|length >= 1 %}
@@ -102,14 +111,17 @@ Available on: {{unit_data.AvailableDateForMoveIn}}<br>
             <td>{{ interest.gender }}</td>
             <td>{{ interest.RoommateCnt }}</td>
             <td>{{ interest.MoveInDate }}</td>
-            <td><a href = "/join_interest?unit_rent_id={{ unit_rent_id }}"> Join Interest</a></td>
+            <td><a href = "/join_interest?unitRentId={{ unit_rent_id }}"> Join Interest</a></td>
         </tr>
         {% endfor %}
-    </table><br>
+    </table>
 {% endif %}
 
-<h3><a href = "/new_interest?unit_rent_id={{ unit_rent_id }}"> I'm interested!</a><br></h3>
+{% if not already_interested %}
+    <h3><a href = "/new_interest?unitRentId={{ unit_rent_id }}"> I'm interested!</a><br></h3>
+{% endif %}
 
+<br>
 <a href="/search_units">New Search</a><br>
 <a href="/home">Home Screen</a><br>
 

@@ -3,6 +3,8 @@ import pymysql.cursors
 import bcrypt  # for hashing and salting password.
 import configparser  # for reading in config.properties
 
+from pymysql import IntegrityError
+
 config = configparser.ConfigParser()
 config.read('resources/config.properties')
 # TODO ################################################
@@ -252,6 +254,16 @@ def show_details():
     cursor.execute(interests_query, (unit_rent_id))
     interests_data = cursor.fetchall()
 
+    # interest check if current user is already interested.
+    username = session['username']
+    check_interest_query = ("SELECT * "
+                            "FROM Interests "
+                            "WHERE unitRentId = %s AND username = %s")
+    cursor.execute(check_interest_query, (unit_rent_id, username))
+    interest_check_data = cursor.fetchall()
+    already_interested = (len(interest_check_data) >= 1)
+    ###
+
     cursor.close()
     return render_template(html[show_details_page],
                            unit_rent_id=unit_rent_id,
@@ -261,7 +273,7 @@ def show_details():
                            pet_data=pet_data,
                            unit_amenities_data=unit_amenities_data,
                            building_amenities_data=building_amenities_data,
-                           interests_data=interests_data)
+                           already_interested=already_interested)
 
 
 @app.route(logout_page)
@@ -305,6 +317,8 @@ def add_pet():
 def new_interest():
     unit_rent_id = int(request.args.get('unitRentId'))
     cursor = conn.cursor()
+    username = session['username']
+
 
     building_query = ("SELECT ab.CompanyName, ab.BuildingName, ab.AddrNum, ab.AddrStreet, "
                       " ab.AddrCity, ab.AddrState, ab.AddrZipCode "
