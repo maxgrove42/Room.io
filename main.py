@@ -179,7 +179,25 @@ def show_results():
     company = request.form['company']
 
     cursor = conn.cursor()
-    query = 'SELECT * FROM ApartmentUnit WHERE BuildingName LIKE %s AND CompanyName LIKE %s'
+    query = ('''
+                WITH bedroomCount AS (
+                    SELECT unitRentId, COUNT(*) AS bedroomCount
+                    FROM rooms
+                    WHERE name LIKE '%%bedroom%%'
+                    GROUP BY unitRentId
+                ),
+                bathroomCount AS (
+                    SELECT unitRentId, COUNT(*) AS bathroomCount
+                    FROM rooms
+                    WHERE name LIKE '%%bathroom%%'
+                    GROUP BY unitRentId
+                )
+                SELECT au.*, bc1.bedroomCount, bc2.bathroomCount
+                FROM ApartmentUnit au
+                INNER JOIN bedroomCount bc1 ON bc1.unitRentId = au.unitRentId
+                INNER JOIN bathroomCount bc2 ON bc2.unitRentId = au.unitRentId
+                WHERE BuildingName LIKE %s AND CompanyName LIKE %s
+            ''')
     cursor.execute(query, ('%' + building + '%', '%' + company + '%'))
     data = cursor.fetchall()
 
@@ -322,7 +340,6 @@ def new_interest():
     cursor = conn.cursor()
     username = session['username']
 
-
     building_query = ("SELECT ab.CompanyName, ab.BuildingName, ab.AddrNum, ab.AddrStreet, "
                       " ab.AddrCity, ab.AddrState, ab.AddrZipCode "
                       "FROM ApartmentBuilding ab "
@@ -359,6 +376,7 @@ def addInterest():
     cursor.close()
     return redirect(show_details_page + '?unitRentId=' + str(unit_rent_id))
 
+
 @app.route(edit_interests)
 def editInterests():
     username = session['username']
@@ -378,6 +396,7 @@ def editInterests():
     cursor.close()
     return render_template(html[edit_interests],
                            interests_data=interests_data)
+
 
 @app.route(delete_interest, methods=['GET'])
 def deleteInterest():
@@ -402,6 +421,7 @@ def deleteInterest():
     cursor.close()
 
     return redirect(edit_interests)
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
