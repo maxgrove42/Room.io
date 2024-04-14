@@ -11,6 +11,7 @@ config.read('resources/config.properties')
 # deal with session['first name'] in sql rather than
 #   in session
 # add a page to show user's interests
+# display pet allowances on a unit by unit basis in apartment search
 # TODO ################################################
 
 # Flask Parameters
@@ -175,6 +176,7 @@ def search_units():
 
 @app.route(unit_results_page, methods=['GET', 'POST'])
 def show_results():
+    username = session['username']
     building = request.form['building']
     company = request.form['company']
 
@@ -191,27 +193,35 @@ def show_results():
                     FROM rooms
                     WHERE name LIKE '%%bathroom%%'
                     GROUP BY unitRentId
+                ),
+                -- find all the buildings/companies that don't allow the users pets
+                petAllowances AS (
+                    SELECT pp.companyName, pp.buildingName, count(*) as userPetsNotAllowed
+                    FROM PetPolicy pp
+                    LEFT JOIN Pets p
+                        ON p.petType = pp.petType
+                        AND p.petSize = pp.petSize
+					WHERE username = %s
+						AND pp.isAllowed = false
+					GROUP BY pp.companyName, pp.buildingName
                 )
-                SELECT au.*, bc1.bedroomCount, bc2.bathroomCount
+                SELECT au.*, bc1.bedroomCount, bc2.bathroomCount,
+                    -- if there were no rows for this username and building/company
+                    -- this means that all the users pets are allowed
+                    (pa.userPetsNotAllowed is null) as petsAllowed
                 FROM ApartmentUnit au
                 INNER JOIN bedroomCount bc1 ON bc1.unitRentId = au.unitRentId
                 INNER JOIN bathroomCount bc2 ON bc2.unitRentId = au.unitRentId
-                WHERE BuildingName LIKE %s AND CompanyName LIKE %s
+                LEFT JOIN petAllowances pa
+					ON pa.companyName = au.companyName
+                    AND pa.buildingName = au.buildingName
+                WHERE au.buildingName LIKE %s AND au.companyName LIKE %s
             ''')
-    cursor.execute(query, ('%' + building + '%', '%' + company + '%'))
+    cursor.execute(query, (username, '%' + building + '%', '%' + company + '%'))
     data = cursor.fetchall()
-
-    query = ('SELECT DISTINCT p.petType, p.petSize, p.petName, pp.isAllowed '
-             'FROM Pets p '
-             'JOIN petPolicy pp '
-             'WHERE p.username = %s '
-             'AND pp.BuildingName LIKE %s AND pp.CompanyName LIKE %s '
-             'AND pp.isAllowed = False')
-    cursor.execute(query, (session['username'], '%' + building + '%', '%' + company + '%'))
-    pets_not_allowed = cursor.fetchall()
     cursor.close()
 
-    return render_template(html[unit_results_page], data=data, pets_not_allowed=pets_not_allowed)
+    return render_template(html[unit_results_page], data=data)
 
 
 @app.route(show_details_page)

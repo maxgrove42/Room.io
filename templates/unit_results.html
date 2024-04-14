@@ -11,15 +11,6 @@
 </style>
 <body>
 <h1> Search Results: </h1>
-<!-- display any pets that aren't allowed if there are any -->
-{% if pets_not_allowed|length == 0 %}
-    <p> All your pets are allowed in this building. </p>
-{% else %}
-    <p> Please note that these pets may not be allowed: </p>
-    {% for pets in pets_not_allowed %}
-        {{pet.PetName}}, your {{pet.PetSize}} {{pet.PetType}}<br>
-    {% endfor %}
-{% endif %}
 
 {% if data|length > 0 %}
     <table>
@@ -32,6 +23,7 @@
         <th> Monthly Rent </th>
         <th> Square Footage </th>
         <th> Available Move-in Date </th>
+        <th> All your pets allowed? </th>
         <th> More Details </th>
         {% for line in data %}
             <tr>
@@ -44,6 +36,7 @@
                 <td>{{line.MonthlyRent}}</td>
                 <td>{{line.squareFootage}}</td>
                 <td>{{line.AvailableDateForMoveIn}}</td>
+                <td>{% if line.petsAllowed == 1 %} Yes {% else %} No {% endif %}</td>
                 <td> <a href="/show_details?unitRentId={{ line.UnitRentID }}"> More Details </a></td>
             </tr>
         {% endfor %}<br>
