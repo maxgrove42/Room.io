@@ -281,8 +281,9 @@ def show_details():
                        "FROM Interests i "
                        "LEFT JOIN Users u "
                        "    ON i.username = u.username "
-                       "WHERE i.UnitRentID = %s")
-    cursor.execute(interests_query, (unit_rent_id))
+                       "WHERE i.UnitRentID = %s"
+                       "    AND u.username != %s")
+    cursor.execute(interests_query, (unit_rent_id, session['username']))
     interests_data = cursor.fetchall()
 
     # interest check if current user is already interested.
@@ -304,6 +305,7 @@ def show_details():
                            pet_data=pet_data,
                            unit_amenities_data=unit_amenities_data,
                            building_amenities_data=building_amenities_data,
+                           interests_data=interests_data,
                            already_interested=already_interested)
 
 
