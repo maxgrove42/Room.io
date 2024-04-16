@@ -205,13 +205,15 @@ def show_results():
 						AND pp.isAllowed = false
 					GROUP BY pp.companyName, pp.buildingName
                 )
-                SELECT au.*, bc1.bedroomCount, bc2.bathroomCount,
+                SELECT au.*,
+                    ifnull(bc1.bedroomCount, 0) as bedroomCount,
+                    ifnull(bc2.bathroomCount, 0) as bathroomCount,
                     -- if there were no rows for this username and building/company
                     -- this means that all the users pets are allowed
                     (pa.userPetsNotAllowed is null) as petsAllowed
                 FROM ApartmentUnit au
-                INNER JOIN bedroomCount bc1 ON bc1.unitRentId = au.unitRentId
-                INNER JOIN bathroomCount bc2 ON bc2.unitRentId = au.unitRentId
+                LEFT JOIN bedroomCount bc1 ON bc1.unitRentId = au.unitRentId
+                LEFT JOIN bathroomCount bc2 ON bc2.unitRentId = au.unitRentId
                 LEFT JOIN petAllowances pa
 					ON pa.companyName = au.companyName
                     AND pa.buildingName = au.buildingName
