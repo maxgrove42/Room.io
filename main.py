@@ -217,7 +217,20 @@ def show_results():
     # TODO ######################################################################
     # need to add in amenity list somehow.
     query = ('''
-                WITH bedroomCount AS (
+                -- allAmenitiesTable used for search feature
+                WITH allAmenitiesTable AS (
+                    SELECT distinct * from (
+                        SELECT unitRentID, aType
+                        FROM AmenitiesIn
+                        UNION
+                        SELECT au.unitRentId, p.aType
+                            FROM Provides p
+                            INNER JOIN ApartmentUnit au
+                            ON p.companyName = au.companyName
+                            AND p.buildingName = au.buildingName
+                    ) x -- derived table name
+                ),
+                bedroomCount AS (
                     SELECT unitRentId, COUNT(*) AS bedroomCount
                     FROM rooms
                     WHERE name LIKE '%%bedroom%%'
@@ -252,6 +265,9 @@ def show_results():
                 LEFT JOIN petAllowances pa
 					ON pa.companyName = au.companyName
                     AND pa.buildingName = au.buildingName
+                INNER JOIN apartmentBuilding ab
+                    ON ab.buildingName = au.buildingName
+                    AND ab.companyName = au.companyName
                 -- including this so we can add-on conditions to the where clause as needed
                 WHERE 1 = 1 
             ''')
@@ -273,8 +289,18 @@ def show_results():
     query += create_single_parameter_query('AddrState', state)
     if state != '': parameters.append(state)
 
-    # query += create_list_parameter_query('aType', amenity)
-    # parameters += amenity
+    # amenities handling
+    if len(amenity) >= 1:
+        placeholders = ', '.join(['%s'] * len(amenity))
+        query += f''' AND au.unitRentId IN (
+                        SELECT unitRentID
+                        FROM allAmenitiesTable
+                        WHERE aType IN ({placeholders})
+                        GROUP BY unitRentID
+                        HAVING COUNT(DISTINCT aType) = {len(amenity)}
+                    )
+                 '''
+        parameters += amenity
 
     # handle the min and max bathrooms manually
     if min_bedrooms != '':
