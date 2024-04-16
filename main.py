@@ -215,7 +215,7 @@ def show_results():
     cursor = conn.cursor()
 
     # TODO ######################################################################
-    # need to add in building name / company name table and amenity list somehow.
+    # need to add in amenity list somehow.
     query = ('''
                 WITH bedroomCount AS (
                     SELECT unitRentId, COUNT(*) AS bedroomCount
@@ -258,10 +258,10 @@ def show_results():
 
     parameters = [username]
 
-    query += create_list_parameter_query('ab.buildingName', building)
+    query += create_list_parameter_query('au.buildingName', building)
     parameters += building
 
-    query += create_list_parameter_query('ab.companyName', company)
+    query += create_list_parameter_query('au.companyName', company)
     parameters += company
 
     query += create_single_parameter_query('AddrZipCode', zip_code)
