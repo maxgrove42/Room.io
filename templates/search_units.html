@@ -7,11 +7,19 @@
 <h3> Leave blank to return all available units. </h3>
 <form action="/unit_results" method="POST">
     <h4>Building / Company Information</h4>
-    <label for="Company">Company Name:</label>
-    <input type="text" id="company" name="company" placeholder="Company Name"><br>
+    <label for="company">Company Name:<br>(use CTRL / Command to select multiple / unselect)</label><br>
+    <select multiple name="company" id="company">
+        {% for company in companies %}
+            <option value="{{company.companyName}}">{{company.companyName}}</option>
+        {% endfor %}
+    </select><br>
 
-    <label for="building">Building Name:</label> <!-- is there a way to select the distinct names and display? -->
-    <input type="text" id="building" name="building" placeholder="Building Name"><br>
+    <label for="building">Building Name:<br>(use CTRL / Command to select multiple / unselect)</label><br>
+    <select multiple name="building" id="building">
+        {% for building in buildings %}
+            <option value="{{building.buildingName}}">{{building.buildingName}}</option>
+        {% endfor %}
+    </select><br>
 
     <h4>Address Information</h4>
     <label for="zipcode">Zip Code:</label>
@@ -87,9 +95,9 @@
     <h4>Amenities Information</h4>
     <label for="desiredAmenities">Desired Amenities:<br>(use CTRL / Command to select multiple / unselect)</label><br>
     <select multiple name="desiredAmenities" id="desiredAmenities">
-        <option value="a">Washer Dryer</option>
-        <option value="b">b</option>
-        <option value="c">c</option>
+        {% for amenity in amenities %}
+            <option value="{{amenity.aType}}">{{amenity.aType}}</option>
+        {% endfor %}
     </select><br>
     <br><input type="submit" value="Search">
     {% if error %}
