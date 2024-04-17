@@ -10,8 +10,6 @@ config.read('resources/config.properties')
 # TODO ################################################
 # deal with session['first name'] in sql rather than
 #   in session
-# add a page to show user's interests
-
 # TODO ################################################
 
 # Flask Parameters
