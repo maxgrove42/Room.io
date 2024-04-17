@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Estimate Rent</title>
+</head>
+<body>
+<h3>Estimate Rent for a zip code!</h3>
+<p>Type in a zip code, and specify a range of bedrooms and bathrooms.
+    We will provide the average monthly rent of units meeting your criteria. </p>
+
+<form action="/estimate_rent_results" method="POST">
+    <label for="zipcode">Zip Code: </label>
+    <input type="text" id="zipcode" name="zipcode" placeholder='12345' required><br>
+
+    <label for="bedroomRange">Min and Max Bedrooms:</label>
+    <input type="number" id="bedroomRange" name="minBedrooms" placeholder = 0 min = 0>
+    <input type="number" name="maxBedrooms" placeholder="Max bedrooms" min = 0><br>
+
+    <label for="bathroomRange">Min and Max Bathrooms:</label>
+    <input type="number" id="bathroomRange" name="minBathrooms" placeholder = 0 min = 0>
+    <input type="number" name="maxBathrooms" placeholder = "Max bathrooms" min = 0><br>
+
+    <br><input type="submit" value="Estimate Rent">
+</form>
+
+<a href="/home">Home Screen</a><br>
+<a href="/logout">Logout</a>
+
+</body>
+</html>

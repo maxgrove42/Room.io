@@ -11,6 +11,7 @@ config.read('resources/config.properties')
 # deal with session['first name'] in sql rather than
 #   in session
 # add a page to show user's interests
+
 # TODO ################################################
 
 # Flask Parameters
@@ -45,6 +46,8 @@ new_interest_page = '/new_interest'
 add_interest_page = '/addInterest'
 edit_interests = '/edit_interests'
 delete_interest = '/deleteInterest'
+estimate_rent = '/estimate_rent'
+estimate_rent_results = '/estimate_rent_results'
 
 # create a dictionary to store html pages,
 #  so that page name is tied to html page
@@ -59,6 +62,8 @@ html[register_pet_page] = 'register_pet.html'
 html[show_details_page] = 'show_details.html'
 html[new_interest_page] = 'new_interest.html'
 html[edit_interests] = 'edit_interests.html'
+html[estimate_rent] = 'estimate_rent.html'
+html[estimate_rent_results] = 'estimate_rent_results.html'
 
 # Configure MySQL
 conn = pymysql.connect(host=sql_host,
@@ -214,8 +219,6 @@ def show_results():
 
     cursor = conn.cursor()
 
-    # TODO ######################################################################
-    # need to add in amenity list somehow.
     query = ('''
                 -- allAmenitiesTable used for search feature
                 WITH allAmenitiesTable AS (
@@ -554,7 +557,74 @@ def deleteInterest():
     return redirect(edit_interests)
 
 
-# Press the green button in the gutter to run the script.
+@app.route(estimate_rent, methods=['GET', 'POST'])
+def estimateRent():
+    return render_template(html[estimate_rent])
+
+
+@app.route(estimate_rent_results, methods=['GET', 'POST'])
+def estimateRentResults():
+    zipcode = request.form['zipcode']
+    minBedrooms = request.form['minBedrooms']
+    maxBedrooms = request.form['maxBedrooms']
+    minBathrooms = request.form['minBathrooms']
+    maxBathrooms = request.form['maxBathrooms']
+
+    query = '''
+                with bedroomCount AS (
+                    SELECT unitRentId, COUNT(*) AS bedroomCount
+                    FROM rooms
+                    WHERE name LIKE '%%bedroom%%'
+                    GROUP BY unitRentId
+                ),
+                bathroomCount AS (
+                    SELECT unitRentId, COUNT(*) AS bathroomCount
+                    FROM rooms
+                    WHERE name LIKE '%%bathroom%%'
+                    GROUP BY unitRentId
+                )
+                select avg(au.monthlyRent) as averageMonthlyRent
+                from apartmentunit au
+                inner join bedroomCount bc
+					ON au.unitRentId = bc.unitRentId
+				inner join bathroomCount brc
+					ON au.unitRentId = brc.unitRentId
+                inner join apartmentBuilding ab
+                    on au.companyName = ab.companyName
+                    and au.buildingName = ab.buildingName
+                WHERE ab.AddrZipCode = %s -- add in future constraints below with AND 
+            '''
+    parameters = [zipcode]
+    if minBedrooms != '':
+        query += ' AND bedroomCount >= %s'
+        parameters.append(minBedrooms)
+    if maxBedrooms != '':
+        query += ' AND bedroomCount <= %s'
+        parameters.append(maxBedrooms)
+    if minBathrooms != '':
+        query += ' AND bathroomCount >= %s'
+        parameters.append(minBathrooms)
+    if maxBathrooms != '':
+        query += ' AND bathroomCount <= %s'
+        parameters.append(maxBathrooms)
+
+    cursor = conn.cursor()
+    cursor.execute(query, tuple(parameters))
+    averageMonthlyRent = cursor.fetchone()
+    cursor.close()
+
+    return render_template(html[estimate_rent_results],
+                           averageMonthlyRent=averageMonthlyRent['averageMonthlyRent'],
+                           zipcode=zipcode,
+                           minBedrooms = minBedrooms,
+                           maxBedrooms=maxBedrooms,
+                           minBathrooms=minBathrooms,
+                           maxBathrooms=maxBathrooms)
+
+
+
+
+
 if __name__ == "__main__":
     app.secret_key = secret_key
     app.run(host, flask_port, debug=debug)

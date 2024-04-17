@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1> Average Rent for {{zipcode}}: </h1>
+<p><strong>Bedroom range:</strong>
+    {% if minBedrooms != '' %} {{minBedrooms}} {% else %} 0 {% endif %}
+    to
+        {% if maxBedrooms != '' %} {{maxBedrooms}} {% else %} no maximum {% endif %}
+    </p>
+<p><strong>Bathroom range:</strong>
+    {% if minBathrooms != '' %} {{minBathrooms}} {% else %} 0 {% endif %}
+    to
+        {% if maxBathrooms != '' %} {{maxBathrooms}} {% else %} no maximum {% endif %}
+    </p>
+
+<p>{% if averageMonthlyRent is not none %} ${{averageMonthlyRent}} {% else %} No results in criteria. Please edit criteria. {% endif %}</p>
+
+
+<a href="/home">Home Screen</a><br>
+<a href="/estimate_rent">New rent estimate search</a><br>
+<a href="/logout">Logout</a>
+</body>
+</html>
