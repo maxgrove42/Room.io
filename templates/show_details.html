@@ -16,13 +16,14 @@
 
 <h2>Unit Details:</h2>
 Building built in: {{building_data.YearBuilt}}<br>
-Monthly Rent: {{unit_data.MonthlyRent}}<br>
+Monthly Rent: ${{unit_data.MonthlyRent}}<br>
 Square Feet: {{unit_data.squareFootage}}<br>
 Available on: {{unit_data.AvailableDateForMoveIn}}<br>
+Rent of similar sized units in {{building_data.AddrCity}} {{building_data.AddrState}}: ${{similar_avg_rent}}<br>
 
 {% if already_interested %}
     <h3>You have marked your interest in this unit!</h3>
-    <p>You can edit your interests <a href = "/edit_interests">here</a>.</p>
+    <p><a href = "/edit_interests">Edit / View Interests</a>.</p>
 {% else %}
     <h3><a href = "/new_interest?unitRentId={{unit_rent_id}}" > I'm interested!</a></h3>
 {% endif %}

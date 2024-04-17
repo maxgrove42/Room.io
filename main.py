@@ -406,6 +406,25 @@ def show_details():
     cursor.execute(interests_query, (unit_rent_id, session['username']))
     interests_data = cursor.fetchall()
 
+    squareFootDifference = 0.10 # allowable range of square footage for similar units
+    similar_rent_query = f'''
+                            select avg(monthlyRent) as similar_avg_rent
+                            from ApartmentUnit au
+                            left join ApartmentBuilding ab
+                                ON au.companyname = ab.companyname
+                                and au.buildingname = ab.buildingname
+                            where squareFootage >= ({1-squareFootDifference})*%s
+                                AND squareFootage <= ({1+squareFootDifference})*%s
+                                AND ab.AddrCity = %s and ab.AddrState = %s
+                         '''
+    cursor.execute(similar_rent_query, (int(unit_data['squareFootage']),
+                                        int(unit_data['squareFootage']),
+                                        building_data['AddrCity'],
+                                        building_data['AddrState']))
+    similar_avg_rent = cursor.fetchone()
+    similar_avg_rent = int(similar_avg_rent['similar_avg_rent']*100)/100
+
+    interests_data = cursor.fetchall()
     # interest check if current user is already interested.
     username = session['username']
     check_interest_query = ("SELECT * "
@@ -426,7 +445,8 @@ def show_details():
                            unit_amenities_data=unit_amenities_data,
                            building_amenities_data=building_amenities_data,
                            interests_data=interests_data,
-                           already_interested=already_interested)
+                           already_interested=already_interested,
+                           similar_avg_rent=similar_avg_rent)
 
 
 @app.route(logout_page)
@@ -611,8 +631,12 @@ def estimateRentResults():
     averageMonthlyRent = cursor.fetchone()
     cursor.close()
 
+    averageMonthlyRent = averageMonthlyRent['averageMonthlyRent']
+    if (averageMonthlyRent is not None):
+        averageMonthlyRent = int(averageMonthlyRent * 100)/100
+
     return render_template(html[estimate_rent_results],
-                           averageMonthlyRent=averageMonthlyRent['averageMonthlyRent'],
+                           averageMonthlyRent=averageMonthlyRent,
                            zipcode=zipcode,
                            minBedrooms = minBedrooms,
                            maxBedrooms=maxBedrooms,
