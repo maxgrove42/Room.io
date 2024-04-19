@@ -5,7 +5,7 @@
 [Flask]
 flask_secret_key = secret_key
 flask_host = 127.0.0.1
-flask_port = 0000
+flask_port = 5000
 
 # database parameters
 [Database]

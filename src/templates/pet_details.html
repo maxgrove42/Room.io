@@ -31,18 +31,20 @@
                 <th> Name </th>
                 <th> Type </th>
                 <th> Size </th>
+                <th> Remove Pet </th>
                 {% for pet in pets %}
                     <tr>
                         <td>{{pet.petName}}</td>
                         <td>{{pet.petType}}</td>
                         <td>{{pet.petSize}}</td>
+                        <td><a href="/delete_pet?pet_name={{pet.petName}}&pet_type={{pet.petType}}">Remove Pet</a></td>
                     </tr>
                 {% endfor %}
             </table><br>
     {% endif %}
                     
     <b>Add Pet:</b>
-    <form action="/add_pet" method="POST">
+    <form action="/pet_details" method="POST">
         <label for="pet_name">Pet Name:</label>
         <input type="text" id="pet_name" name="pet_name" placeholder="Name" required><br>
 
@@ -69,7 +71,7 @@
         {% endif %}
     </form><br>
     
-    <a href="/home">Home Screen</a><br>
+    <a href="/dashboard">Home Screen</a><br>
     <a href="/logout">Logout</a>
     
     <script>

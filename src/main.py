@@ -1,12 +1,10 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
 import bcrypt  # for hashing and salting password.
-import configparser  # for reading in config.properties
+
 
 from pymysql import IntegrityError
 
-config = configparser.ConfigParser()
-config.read('resources/config.properties')
 # TODO ################################################
 # deal with session['first name'] in sql rather than
 #   in session
@@ -14,10 +12,10 @@ config.read('resources/config.properties')
 
 # Flask Parameters
 app = Flask(__name__)
-secret_key = config['Flask']['flask_secret_key']
-host = config['Flask']['flask_host']
-flask_port = int(config['Flask']['flask_port'])
-debug = True
+config = Config()
+
+host = config.db_host
+flask_port = config.db_port
 
 # MYSQL connection parameters
 sql_host = config['Database']['db_host']
@@ -53,10 +51,10 @@ html = {}
 html[start_page] = 'index.html'
 html[login_page] = 'login.html'
 html[register_page] = 'register.html'
-html[home_page] = 'home.html'
+html[home_page] = 'dashboard.html'
 html[search_units_page] = 'search_units.html'
 html[unit_results_page] = 'unit_results.html'
-html[register_pet_page] = 'register_pet.html'
+html[register_pet_page] = 'pet_details.html'
 html[show_details_page] = 'show_details.html'
 html[new_interest_page] = 'new_interest.html'
 html[edit_interests] = 'edit_interests.html'
@@ -170,178 +168,6 @@ def home():
     name = session['first_name']
     return render_template(html[home_page], first_name=name, posts="test template")
 
-
-@app.route(search_units_page)
-def search_units():
-    cursor = conn.cursor()
-    amenities_query = ('''
-                        SELECT distinct aType
-                        FROM Amenities
-                       ''')
-    cursor.execute(amenities_query)
-    amenities = cursor.fetchall()
-
-    building_query = ('''
-                        SELECT distinct buildingName
-                        FROM ApartmentBuilding
-                       ''')
-    cursor.execute(building_query)
-    buildings = cursor.fetchall()
-
-    company_query = ('''
-                        SELECT distinct companyName
-                        FROM ApartmentBuilding
-                       ''')
-    cursor.execute(company_query)
-    companies = cursor.fetchall()
-
-    return render_template(html[search_units_page],
-                           amenities=amenities,
-                           companies=companies,
-                           buildings=buildings)
-
-
-@app.route(unit_results_page, methods=['GET', 'POST'])
-def show_results():
-    username = session['username']
-    building = request.form.getlist('building')
-    company = request.form.getlist('company')
-    zip_code = request.form['zipcode']
-    city = request.form['city']
-    state = request.form['state']
-    min_bedrooms = request.form['minBedrooms']
-    max_bedrooms = request.form['maxBedrooms']
-    min_bathrooms = request.form['minBathrooms']
-    max_bathrooms = request.form['maxBathrooms']
-    amenity = request.form.getlist('desiredAmenities')
-
-    cursor = conn.cursor()
-
-    query = ('''
-                -- allAmenitiesTable used for search feature
-                WITH allAmenitiesTable AS (
-                    SELECT distinct * from (
-                        SELECT unitRentID, aType
-                        FROM AmenitiesIn
-                        UNION
-                        SELECT au.unitRentId, p.aType
-                            FROM Provides p
-                            INNER JOIN ApartmentUnit au
-                            ON p.companyName = au.companyName
-                            AND p.buildingName = au.buildingName
-                    ) x -- derived table name
-                ),
-                bedroomCount AS (
-                    SELECT unitRentId, COUNT(*) AS bedroomCount
-                    FROM rooms
-                    WHERE name LIKE '%%bedroom%%'
-                    GROUP BY unitRentId
-                ),
-                bathroomCount AS (
-                    SELECT unitRentId, COUNT(*) AS bathroomCount
-                    FROM rooms
-                    WHERE name LIKE '%%bathroom%%'
-                    GROUP BY unitRentId
-                ),
-                -- find all the buildings/companies that don't allow the users pets
-                petAllowances AS (
-                    SELECT pp.companyName, pp.buildingName, count(*) as userPetsNotAllowed
-                    FROM PetPolicy pp
-                    LEFT JOIN Pets p
-                        ON p.petType = pp.petType
-                        AND p.petSize = pp.petSize
-					WHERE username = %s
-						AND pp.isAllowed = false
-					GROUP BY pp.companyName, pp.buildingName
-                )
-                SELECT au.*,
-                    ifnull(bc1.bedroomCount, 0) as bedroomCount,
-                    ifnull(bc2.bathroomCount, 0) as bathroomCount,
-                    -- if there were no rows for this username and building/company
-                    -- this means that all the users pets are allowed
-                    (pa.userPetsNotAllowed is null) as petsAllowed
-                FROM ApartmentUnit au
-                LEFT JOIN bedroomCount bc1 ON bc1.unitRentId = au.unitRentId
-                LEFT JOIN bathroomCount bc2 ON bc2.unitRentId = au.unitRentId
-                LEFT JOIN petAllowances pa
-					ON pa.companyName = au.companyName
-                    AND pa.buildingName = au.buildingName
-                INNER JOIN apartmentBuilding ab
-                    ON ab.buildingName = au.buildingName
-                    AND ab.companyName = au.companyName
-                -- including this so we can add-on conditions to the where clause as needed
-                WHERE 1 = 1 
-            ''')
-
-    parameters = [username]
-
-    query += create_list_parameter_query('au.buildingName', building)
-    parameters += building
-
-    query += create_list_parameter_query('au.companyName', company)
-    parameters += company
-
-    query += create_single_parameter_query('AddrZipCode', zip_code)
-    if zip_code != '': parameters.append(zip_code)
-
-    query += create_single_parameter_query('AddrCity', city)
-    if city != '': parameters.append(city)
-
-    query += create_single_parameter_query('AddrState', state)
-    if state != '': parameters.append(state)
-
-    # amenities handling
-    if len(amenity) >= 1:
-        placeholders = ', '.join(['%s'] * len(amenity))
-        query += f''' AND au.unitRentId IN (
-                        SELECT unitRentID
-                        FROM allAmenitiesTable
-                        WHERE aType IN ({placeholders})
-                        GROUP BY unitRentID
-                        HAVING COUNT(DISTINCT aType) = {len(amenity)}
-                    )
-                 '''
-        parameters += amenity
-
-    # handle the min and max bathrooms manually
-    if min_bedrooms != '':
-        query += ' AND bedroomCount >= %s '
-        parameters.append(min_bedrooms)
-    if max_bedrooms != '':
-        query += ' AND bedroomCount <= %s '
-        parameters.append(max_bedrooms)
-    if min_bathrooms != '':
-        query += ' AND bathroomCount >= %s '
-        parameters.append(min_bathrooms)
-    if max_bathrooms != '':
-        query += ' AND bathroomCount <= %s '
-        parameters.append(max_bathrooms)
-
-    cursor.execute(query, tuple(parameters))
-    data = cursor.fetchall()
-    cursor.close()
-
-    return render_template(html[unit_results_page], data=data)
-
-
-def create_list_parameter_query(columnName, list):
-    query = ''
-    if len(list) >= 1:
-        placeholders = ', '.join(['%s'] * len(list))
-        query = f' AND {columnName} IN ({placeholders}) '
-    return query
-
-
-def create_single_parameter_query(columnName, parameter):
-    query = ''
-    if parameter != '':
-        query = f' AND {columnName} = %s '
-    return query
-
-
-def make_list_parameters(database_column, list):
-    if len(list) >= 1:
-        placeholders = ', '.join(['%s'] * len(list))
 
 
 @app.route(show_details_page)

@@ -17,7 +17,7 @@
    <h3>{{building_data.AddrNum}} {{building_data.AddrStreet}}, Unit {{unit_data.unitNumber}}, {{building_data.AddrCity}} {{building_data.AddrState}}, {{building_data.AddrZipCode}}</h3>
                     
     <b>Add Interest:</b>
-    <form action="/addInterest?unitRentId={{unit_rent_id}}" method="POST">
+    <form action="/new_interest?unitRentId={{unit_rent_id}}" method="POST">
         <label for="roommate_count">Total number of roommates including yourself: </label>
         <input type="number" id="roommate_count" name="roommate_count" placeholder=1 min = 1 required><br>
 
@@ -32,7 +32,7 @@
     </form><br>
 
    <a href="/show_details?unitRentId={{unit_rent_id}}">Back to unit details</a><br>
-    <a href="/home">Home Screen</a><br>
+    <a href="/dashboard">Home Screen</a><br>
     <a href="/logout">Logout</a>
     
     <script>

@@ -34,7 +34,7 @@
             <td>{{interest.squareFootage}}</td>
             <td>{{interest.RoommateCnt}}</td>
             <td>{{interest.MoveInDate}}</td>
-            <td><a href="/deleteInterest?unitRentId={{interest.unitRentId}}">Delete Interest</a></td>
+            <td><a href="/delete_interest?unitRentId={{interest.unitRentId}}">Delete Interest</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -43,7 +43,7 @@
 {% endif %}
 
 <a href="/search_units">New Search</a><br>
-<a href="/home">Home Screen</a><br>
+<a href="/dashboard">Home Screen</a><br>
 <a href="/logout">Logout</a>
 </body>
 </html>
