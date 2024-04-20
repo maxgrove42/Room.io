@@ -6,7 +6,7 @@ class Config:
     # essentially make config prop's static
     _config = None
 
-    default_path = 'resources/config.properties'
+    default_path = 'src/resources/config.properties'
     def __init__(self, filepath = default_path):
         if Config._config is None:
             Config._config = configparser.ConfigParser()
