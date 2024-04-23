@@ -23,5 +23,9 @@ def query_db(query, args=(), one_column=False):
             conn.commit()  # account for insertions and deletions
             result = cursor.fetchone() if one_column else cursor.fetchall()
             return result
+    except pymysql.Error as e:
+        conn.rollback()
+        print(f"Database query failed: {e}")
+        raise
     finally:
         conn.close()

@@ -1,5 +1,7 @@
-import src.config as config
+from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+
+import src.config as config
 import src.services as services
 import src.database as database
 
@@ -11,11 +13,21 @@ flask_port = config.flask_port
 debug = config.debug
 
 # TODO
+# Potentially add error reasons to registration?
 # Bug fix : self-describe pet doesn't wor properly
 # Bug fix : self-describe gender doesn't work properly.
 # It records gender as "self describe", not the box
 # TODO
 
+
+# Decorator function to ensure log in for pages that require it.
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:
+            return redirect(url_for('login_failure'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def homepage():
@@ -71,11 +83,9 @@ def login_failure():
 
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     name = database.query_db('SELECT first_name FROM Users WHERE username = %s',
                              (username,),
                              one_column=True)
@@ -84,11 +94,9 @@ def dashboard():
 
 
 @app.route('/search_units')
+@login_required
 def search_units():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     amenities = database.query_db('SELECT distinct aType FROM Amenities')
     buildings = database.query_db('SELECT distinct buildingName FROM ApartmentBuilding')
     companies = database.query_db('SELECT distinct companyName FROM ApartmentBuilding')
@@ -100,11 +108,9 @@ def search_units():
 
 
 @app.route('/unit_results', methods=['GET', 'POST'])
+@login_required
 def show_results():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     form_data = {
         'building': request.form.getlist('building'),
         'company': request.form.getlist('company'),
@@ -122,6 +128,7 @@ def show_results():
 
 
 @app.route('/show_details')
+@login_required
 def show_details():
     unit_rent_id = int(request.args.get('unitRentId'))
     username = session['username']
@@ -204,11 +211,9 @@ def show_details():
 
 
 @app.route('/pet_details', methods=['GET', 'POST'])
+@login_required
 def pet_details():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
 
     if request.method == 'POST':
         try:
@@ -227,11 +232,9 @@ def pet_details():
 
 
 @app.route('/delete_pet')
+@login_required
 def delete_pet():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     pet_name = request.args.get('pet_name')
     pet_type = request.args.get('pet_type')
     delete_query = 'DELETE FROM Pets WHERE username = %s AND petName = %s AND petType = %s LIMIT 1'
@@ -240,11 +243,9 @@ def delete_pet():
 
 
 @app.route('/new_interest', methods=['GET', 'POST'])
+@login_required
 def interests():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     unit_rent_id = int(request.args.get('unitRentId'))
     if request.method == 'POST':
         roommate_count = request.form['roommate_count']
@@ -273,11 +274,9 @@ def interests():
 
 
 @app.route('/edit_interests')
+@login_required
 def edit_interests():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     interests_query = ('''SELECT ab.AddrNum, ab.AddrStreet, ab.AddrCity, ab.AddrState, ab.AddrZipCode, au.unitNumber,
                           au.MonthlyRent, au.squareFootage, i.RoommateCnt, i.MoveInDate, i.unitRentId 
                           FROM Interests i 
@@ -291,11 +290,9 @@ def edit_interests():
 
 
 @app.route('/delete_interest')
+@login_required
 def delete_interest():
-    try:
-        username = session['username']
-    except KeyError as e:
-        return redirect(url_for('login_failure'))
+    username = session['username']
     unit_rent_id = int(request.args.get('unitRentId'))
     # safety check to ensure this user has an interest in the unit
     possible_rent_ids_query = 'SELECT distinct unitRentId FROM interests WHERE username = %s'
@@ -309,6 +306,7 @@ def delete_interest():
 
 
 @app.route('/estimate_rent', methods=['GET', 'POST'])
+@login_required
 def estimate_rent():
     averageMonthlyRent = None
     if request.method == 'POST':
@@ -362,6 +360,7 @@ def estimate_rent():
 
     return render_template('estimate_rent.html',
                            averageMonthlyRent=averageMonthlyRent)
+
 
 if __name__ == "__main__":
     app.run(flask_host, flask_port, debug=debug)

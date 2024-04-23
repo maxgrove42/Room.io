@@ -21,6 +21,7 @@ def register_user(username, first_name, last_name, date_of_birth,
         print(e)
         return False
 
+
 class SearchService:
     def perform_search(self, username, form_data):
         query, parameters = self._build_query(username, form_data)
@@ -125,7 +126,3 @@ class SearchService:
         if parameter != '':
             query = f' AND {columnName} = %s '
         return query
-
-    # def _make_list_parameters(self, database_column, list):
-    #     if len(list) >= 1:
-    #         placeholders = ', '.join(['%s'] * len(list))

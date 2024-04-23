@@ -44,7 +44,7 @@
     {% endif %}
                     
     <b>Add Pet:</b>
-    <form action="/pet_details" method="POST">
+    <form id="register_pet" action="/pet_details" method="POST">
         <label for="pet_name">Pet Name:</label>
         <input type="text" id="pet_name" name="pet_name" placeholder="Name" required><br>
 
@@ -86,14 +86,20 @@
             }
         }
         
-        //ensure we change the gender value to self-describe value if that was selected
-        function handleFormSubmit(event) {
-            var selectBox = document.getElementById('pet_type');
-            var userInput = document.getElementById('custom_pet');
-            if (selectBox.value === 'self-describe' && userInput.value) {
-                selectBox.value = userInput.value;
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            let form = document.getElementById('register_pet');
+            form.addEventListener('submit', function(event) {
+                var selectBox = document.getElementById('pet_type');
+                var userInput = document.getElementById('custom_pet');
+                if (selectBox.value === 'self-describe' && userInput.value) {
+                    selectBox.name = '';  // Disable the name of select so it doesn't interfere
+                    userInput.name = 'pet_type';  // Use the custom input for submission
+                } else {
+                    selectBox.name = 'pet_type';  // Ensure the select is named for standard submissions
+                    userInput.name = '';
+                }
+            });
+        });
     </script>
 </body>
 </html>

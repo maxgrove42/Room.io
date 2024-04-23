@@ -6,7 +6,7 @@
     <title>Register</title>
 </head>
 <body>
-    <form action="/register" method="POST">
+    <form id="register_form" action="/register" method="POST">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="Username" required><br>
         
@@ -34,7 +34,7 @@
             <option value="self-describe">Prefer to self-describe</option>
         </select><br>
         <input type="text" id="custom_gender" name="custom_gender" placeholder="Enter your gender identity" style="display:none;">
-        
+
         <label for="phone">Phone Number:</label>
         <input type="text" id="phone" name="phone" placeholder="123-555-1212"><br>
         
@@ -64,25 +64,31 @@
             document.getElementById('date_of_birth').setAttribute('max', minDateStr);
         });
 
-        //only display the self-describe box if that is selected
         function showCustomInput() {
             var selectBox = document.getElementById('gender_identity');
             var userInput = document.getElementById('custom_gender');
             userInput.style.display = selectBox.value === 'self-describe' ? 'block' : 'none';
-            
+
             if (selectBox.value !== 'self-describe') {
                 userInput.value = '';
             }
         }
-        
-        //ensure we change the gender value to self-describe value if that was selected
-        function handleFormSubmit(event) {
-            var selectBox = document.getElementById('genderIdentity');
-            var userInput = document.getElementById('customGender');
-            if (selectBox.value === 'self-describe' && userInput.value) {
-                selectBox.value = userInput.value;
-            }
-        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let form = document.getElementById('register_form');
+            form.addEventListener('submit', function(event) {
+                var selectBox = document.getElementById('gender_identity');
+                var userInput = document.getElementById('custom_gender');
+                if (selectBox.value === 'self-describe' && userInput.value) {
+                    selectBox.name = '';  // Disable the name of select so it doesn't interfere
+                    userInput.name = 'gender_identity';  // Use the custom input for submission
+                } else {
+                    selectBox.name = 'gender_identity';  // Ensure the select is named for standard submissions
+                    userInput.name = '';
+                }
+            });
+        });
+    </script>
     </script>
 </body>
 </html>
