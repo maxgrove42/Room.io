@@ -14,9 +14,6 @@ debug = config.debug
 
 # TODO
 # Potentially add error reasons to registration?
-# Bug fix : self-describe pet doesn't wor properly
-# Bug fix : self-describe gender doesn't work properly.
-# It records gender as "self describe", not the box
 # TODO
 
 
