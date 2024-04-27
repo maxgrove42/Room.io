@@ -7,13 +7,13 @@ ROOM.IO is a Flask-based web application designed to simplify the search for apa
 - User Authentication: Register and login to access personalized features.
 - Apartment Search: Search for apartment units based on specific criteria.
 - Pet Registration: Register pets and automatically check against apartment pet policies.
-- User and Pet Management: Update user profiles and pet information seamlessly.
+- Interest and Pet Management: Update pet and interest information seamlessly.
+- Advanced Search Functionality: Zip Code, City, State, Bedroom count, Bathroom count, Amenities
 - Display more detailed building and apartment information
-
-## Upcoming Features
-
 - Mark interest: View who is interested in an apartment and mark your own interest.
-- Ensure security from SQL Injections and XSS attacks
+- Display average rent prices in the zip code
+- Monthly Rent Estimator based on zip code and bedroom / bathroom count
+- Secure from SQL Injections and XSS attacks
 
 ## Setup and Installation
 
@@ -38,7 +38,7 @@ Update the `MYSQL connection parameters` in the `/resources/config.properties` f
 Install the required Python packages (as described in `requirements.txt`) by running:
 
 ```
-pip install Flask pymysql bcrypt
+pip install Flask pymysql bcrypt configparser
 ```
 
 ### Running the Application
@@ -46,7 +46,7 @@ pip install Flask pymysql bcrypt
 To start the application, navigate to the directory containing the Flask application file and run:
 
 ```
-python main.py
+python run.py
 ```
 
 The application will start running on `http://127.0.0.1:5000` by default. You can access the web application by visiting this URL in a web browser. You can modify the server and port in `/resources/config.properties`
@@ -74,6 +74,5 @@ For further customization and development, I will consider adding more features 
 
 - SQL queries stored in a static sql file to access, rather than directly in the Python code
 - Email verification for new users.
-- Advanced search filters for apartment units.
-- User profile and pet detail pages.
+- User profile oage
 - Integration with external APIs for additional apartment data (Perhaps Streeteasy?)
