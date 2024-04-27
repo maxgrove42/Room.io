@@ -59,7 +59,7 @@ def register():
         phone = request.form['phone']
         email = request.form['email']
         if services.register_user(username, first_name, last_name, date_of_birth,
-                                  gender_identity, email, phone, password):
+                                  gender_identity, email, phone, password, confirm_password):
             # creates a session for the user
             session['username'] = username
             return redirect(url_for('dashboard'))

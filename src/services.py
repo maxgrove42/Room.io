@@ -10,7 +10,9 @@ def authenticate_user(username, password):
 
 
 def register_user(username, first_name, last_name, date_of_birth,
-                  gender_identity, email, phone, password):
+                  gender_identity, email, phone, password, confirm_password):
+    if password != confirm_password:
+        return False
     try:
         hashed_password = utilities.hash_password(password)
         query = 'INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
