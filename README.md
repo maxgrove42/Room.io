@@ -52,17 +52,85 @@ python run.py
 The application will start running on `http://127.0.0.1:5000` by default. You can access the web application by visiting this URL in a web browser. You can modify the server and port in `/resources/config.properties`
 
 ## Application Routes
+# Flask Application Sitemap
 
-- `/`: The home page.
-- `/login`: The login page.
-- `/register`: The registration page for new users.
-- `/home`: The main dashboard after logging in.
-- `/logout`: Logout and clear session.
-- `/search_units`: Page to search for apartment units.
-- `/unit_results`: Display search results for apartments.
-- `/register_pet`: Page to register pets.
-- `/add_pet`: Backend route to add a pet to the database.
-- `/show_details`: Page to display more detailed information on a given building
+## Routes Overview
+
+### Public Routes
+
+- **Homepage**
+  - Endpoint: `/`
+  - Description: Displays the main homepage.
+
+- **Login**
+  - Endpoint: `/login`
+  - Methods: GET, POST
+  - Description: Handles user login. Displays login form on GET and processes login on POST.
+
+- **Register**
+  - Endpoint: `/register`
+  - Methods: GET, POST
+  - Description: Handles new user registration. Displays registration form on GET and processes registration on POST.
+
+- **Login Failure**
+  - Endpoint: `/login_failure`
+  - Description: Displays a login failure message.
+
+### Authenticated Routes
+
+- **Logout**
+  - Endpoint: `/logout`
+  - Description: Clears the user session and redirects to the homepage.
+
+- **Dashboard**
+  - Endpoint: `/dashboard`
+  - Description: Displays user-specific dashboard information. Requires login.
+
+- **Search Units**
+  - Endpoint: `/search_units`
+  - Description: Allows logged-in users to search for apartment units.
+
+- **Unit Results**
+  - Endpoint: `/unit_results`
+  - Methods: GET, POST
+  - Description: Shows results for apartment units based on search criteria. Requires login.
+
+- **Show Details**
+  - Endpoint: `/show_details`
+  - Description: Displays detailed information about a specific apartment unit. Requires login.
+
+- **Pet Details**
+  - Endpoint: `/pet_details`
+  - Methods: GET, POST
+  - Description: Shows and allows modification of pet details. Requires login.
+
+- **Delete Pet**
+  - Endpoint: `/delete_pet`
+  - Description: Deletes a specific pet based on user input. Requires login.
+
+- **New Interest**
+  - Endpoint: `/new_interest`
+  - Methods: GET, POST
+  - Description: Allows users to express interest in an apartment unit. Requires login.
+
+- **Edit Interests**
+  - Endpoint: `/edit_interests`
+  - Description: Allows users to view and edit their interests in apartment units. Requires login.
+
+- **Delete Interest**
+  - Endpoint: `/delete_interest`
+  - Description: Deletes a specific interest based on user selection. Requires login.
+
+- **Estimate Rent**
+  - Endpoint: `/estimate_rent`
+  - Methods: GET, POST
+  - Description: Allows users to estimate rent based on input parameters. Requires login.
+
+## Additional Information
+
+- The application utilizes session management to maintain user state across requests.
+- Certain routes are protected with a `login_required` decorator to ensure that only authenticated users can access them.
+
 
 ## Security Notes
 
