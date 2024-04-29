@@ -8,7 +8,7 @@ ROOM.IO is a Flask-based web application designed to simplify the search for apa
 - Apartment Search: Search for apartment units based on specific criteria.
 - Pet Registration: Register pets and automatically check against apartment pet policies.
 - Interest and Pet Management: Update pet and interest information seamlessly.
-- Advanced Search Functionality: Zip Code, City, State, Bedroom count, Bathroom count, Amenities
+- Advanced Search Functionality: Zip Code, City, State, Rent Range, Bedroom count, Bathroom count, Amenities
 - Display more detailed building and apartment information
 - Mark interest: View who is interested in an apartment and mark your own interest.
 - Display average rent prices in the zip code
