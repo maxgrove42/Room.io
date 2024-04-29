@@ -58,6 +58,9 @@ class SearchService:
                     GROUP BY pp.companyName, pp.buildingName
                 )
                 SELECT au.*,
+                    ab.AddrZipCode as zipCode,
+                    ab.AddrCity as city,
+                    ab.AddrState as state,
                     ifnull(bc1.bedroomCount, 0) as bedroomCount,
                     ifnull(bc2.bathroomCount, 0) as bathroomCount,
                     -- if there were no rows for this username and building/company
@@ -100,7 +103,7 @@ class SearchService:
                          '''
             parameters += form_data['amenity']
 
-        # handle the min and max bathrooms manually
+        # handle the min and max bathrooms manually along with rent range
         if form_data['min_bedrooms'] != '':
             query += ' AND bedroomCount >= %s '
             parameters.append(form_data['min_bedrooms'])
@@ -113,6 +116,12 @@ class SearchService:
         if form_data['max_bathrooms'] != '':
             query += ' AND bathroomCount <= %s '
             parameters.append(form_data['max_bathrooms'])
+        if form_data['minRent'] != '':
+            query += ' AND au.monthlyRent >= %s '
+            parameters.append(form_data['minRent'])
+        if form_data['maxRent'] != '':
+            query += ' AND au.monthlyRent <= %s '
+            parameters.append(form_data['maxRent'])
 
         return query, parameters
 

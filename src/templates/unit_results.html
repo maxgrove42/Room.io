@@ -17,6 +17,9 @@
         <th> Unit ID </th>
         <th> Company </th>
         <th> Building </th>
+        <th> Zip Code </th>
+        <th> City </th>
+        <th> State </th>
         <th> Unit Number </th>
         <th> Bedrooms </th>
         <th> Bathrooms </th>
@@ -30,10 +33,13 @@
                 <td> {{line.UnitRentID}}</td>
                 <td>{{line.CompanyName}}</td>
                 <td>{{line.BuildingName}}</td>
+                <td>{{line.zipCode}}</td>
+                <td>{{line.city}}</td>
+                <td>{{line.state}}</td>
                 <td>{{line.unitNumber}}</td>
                 <td>{{line.bedroomCount}}</td>
                 <td>{{line.bathroomCount}}</td>
-                <td>{{line.MonthlyRent}}</td>
+                <td>${{line.MonthlyRent}}</td>
                 <td>{{line.squareFootage}}</td>
                 <td>{{line.AvailableDateForMoveIn}}</td>
                 <td>{% if line.petsAllowed == 1 %} Yes {% else %} No {% endif %}</td>

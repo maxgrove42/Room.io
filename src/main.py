@@ -114,6 +114,8 @@ def show_results():
         'zip_code': request.form['zipcode'],
         'city': request.form['city'],
         'state': request.form['state'],
+        'minRent': request.form['minRent'],
+        'maxRent': request.form['maxRent'],
         'min_bedrooms': request.form['minBedrooms'],
         'max_bedrooms': request.form['maxBedrooms'],
         'min_bathrooms': request.form['minBathrooms'],
