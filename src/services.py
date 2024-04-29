@@ -12,16 +12,11 @@ def authenticate_user(username, password):
 def register_user(username, first_name, last_name, date_of_birth,
                   gender_identity, email, phone, password, confirm_password):
     if password != confirm_password:
-        return False
-    try:
-        hashed_password = utilities.hash_password(password)
-        query = 'INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
-        database.query_db(query, (username, first_name, last_name, date_of_birth,
-                                  gender_identity, email, phone, hashed_password))
-        return True
-    except Exception as e:
-        print(e)
-        return False
+        raise RuntimeError("Passwords do not match.")
+    hashed_password = utilities.hash_password(password)
+    query = 'INSERT INTO users VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
+    database.query_db(query, (username, first_name, last_name, date_of_birth,
+                              gender_identity, email, phone, hashed_password))
 
 
 class SearchService:

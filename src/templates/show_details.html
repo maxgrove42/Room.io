@@ -19,7 +19,12 @@ Building built in: {{building_data.YearBuilt}}<br>
 Monthly Rent: ${{unit_data.MonthlyRent}}<br>
 Square Feet: {{unit_data.squareFootage}}<br>
 Available on: {{unit_data.AvailableDateForMoveIn}}<br>
-Rent of similar sized units in {{building_data.AddrCity}} {{building_data.AddrState}}: ${{similar_avg_rent}}<br>
+
+{% if similar_avg_rent is none %}
+    There are no other similarly sized units in {{building_data.AddrCity}} {{building_data.AddrState}}<br>
+{% else %}
+    Rent of similar sized units in {{building_data.AddrCity}} {{building_data.AddrState}}, excluding this unit: ${{similar_avg_rent}}<br>
+{% endif %}
 
 {% if already_interested %}
     <h3>You have marked your interest in this unit!</h3>
@@ -100,6 +105,9 @@ Rent of similar sized units in {{building_data.AddrCity}} {{building_data.AddrSt
 
 {% if interests_data|length >= 1 %}
 <h2>Who else is interested:</h2>
+{% if already_interested %}
+    <p>You have also marked your interest in this unit!</p>
+{% endif %}
     <table>
         <th>First Name</th>
         <th>Gender</th>

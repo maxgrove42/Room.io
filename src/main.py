@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from pymysql import IntegrityError
 
 import src.config as config
 import src.services as services
@@ -58,13 +59,18 @@ def register():
         gender_identity = request.form['gender_identity']
         phone = request.form['phone']
         email = request.form['email']
-        if services.register_user(username, first_name, last_name, date_of_birth,
-                                  gender_identity, email, phone, password, confirm_password):
+        try:
+            services.register_user(username, first_name, last_name, date_of_birth,
+                                  gender_identity, email, phone, password, confirm_password)
             # creates a session for the user
             session['username'] = username
             return redirect(url_for('dashboard'))
-        else:
-            return render_template('register.html', error="Registration failed")
+        except RuntimeError as re:
+            return render_template('register.html', error=re)
+        except IntegrityError as ie:
+            return render_template('register.html', error="A user already exists with that username. Please modify.")
+        except:
+            return render_template('register.html', error="Registration failed. Please try again.")
     return render_template('register.html')
 
 
@@ -131,7 +137,7 @@ def show_results():
 def show_details():
     unit_rent_id = int(request.args.get('unitRentId'))
     username = session['username']
-    sq_foot_diff_similar_units = 0.10 # Sqaure Foot Difference Allowance for similar units
+    sq_foot_diff_similar_units = 0.10  # Square Foot Difference Allowance for similar units
 
     building_data = database.query_db('''
                                       SELECT ab.CompanyName, ab.BuildingName, ab.AddrNum, ab.AddrStreet,
@@ -183,16 +189,23 @@ def show_details():
                                          SELECT avg(monthlyRent) as similar_avg_rent FROM ApartmentUnit au
                                          LEFT JOIN ApartmentBuilding ab
                                              ON au.companyname = ab.companyname and au.buildingname = ab.buildingname
-                                         where squareFootage >= ({1-sq_foot_diff_similar_units})*%s
-                                             AND squareFootage <= ({1+sq_foot_diff_similar_units})*%s
+                                         where squareFootage >= (1-%s)*%s
+                                             AND squareFootage <= (1+%s)*%s
                                              AND ab.AddrCity = %s and ab.AddrState = %s
+                                             AND unitRentID != %s
                                          ''',
-                                         (int(unit_data['squareFootage']),
+                                         (sq_foot_diff_similar_units,
+                                          int(unit_data['squareFootage']),
+                                          sq_foot_diff_similar_units,
                                           int(unit_data['squareFootage']),
                                           building_data['AddrCity'],
-                                          building_data['AddrState']),
+                                          building_data['AddrState'],
+                                          unit_rent_id),
                                          True)
-    similar_avg_rent = int(similar_avg_rent['similar_avg_rent'] * 100) / 100
+    if similar_avg_rent['similar_avg_rent'] is not None:
+        similar_avg_rent = int(similar_avg_rent['similar_avg_rent'] * 100) / 100
+    else:
+        similar_avg_rent = None
     already_interested = len(database.query_db('SELECT * FROM Interests WHERE unitRentId = %s AND username = %s',
                                            (unit_rent_id, username),
                                            False)) >= 1
@@ -222,8 +235,11 @@ def pet_details():
             database.query_db('INSERT INTO pets VALUES (%s, %s, %s, %s)',
                               (pet_name, pet_type, pet_size, username))
             flash('Pet added successfully', category='success')
+        except IntegrityError as ie:
+            print(ie)
+            flash('You cannot add a pet with same Name and Type. Please modify.', category='warning')
         except:
-            flash('Unable to add pet. Please try again', category='warning')
+            flash('Unable to add pet. Please try again, or there may be a server error.', category='warning')
     data = database.query_db('SELECT petName, petType, petSize FROM Pets WHERE username = %s',
                              (username,),
                              False)
