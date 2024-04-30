@@ -15,6 +15,24 @@ ROOM.IO is a Flask-based web application designed to simplify the search for apa
 - Monthly Rent Estimator based on zip code and bedroom / bathroom count
 - Secure from SQL Injections and XSS attacks
 
+### Code Files
+## `main.py`:
+- Where the Flask routing and majority of business logic is held. Simple SQL queries are also held here
+  
+## `services.py`:
+- Handles user authentication / registration services and the complex business logic for Searching
+- Searching slowly adds search criteria to the query as needed based on what search parameters were selected in `/search_units`
+
+## `config.py`:
+- Creates a config class to read in the `config.properties` file in `src/resources/config.properties`
+- Configurable variables include Flask Secret Key, Flask Debug Mode, Flask Host Address, Flask Port, and database configuration settings
+
+## `database.py`:
+- Handles connection to database and MySQL handling of queries. Does not implement any business logic.
+
+## `utilities.py`:
+- Handling for password hashing and checking against hashed passwords.
+  
 ## Setup and Installation
 
 ### Prerequisites
